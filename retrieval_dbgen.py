@@ -36,7 +36,7 @@ parser.add_argument('fnameW', type = str)
 args = parser.parse_args()
 
 #
-def getSubstructSmi(mol,atomID,radius):
+def getSmarts(mol,atomID,radius):
     if radius>0:
         env = Chem.FindAtomEnvironmentOfRadiusN(mol,radius,atomID)
         atomsToUse=[]
@@ -89,7 +89,7 @@ def transformation(fnameW, fnameR):
 
                 for bitId,atoms in info.items():
                     exampleAtom,exampleRadius = atoms[0]
-                    description = getSubstructSmi(molP,exampleAtom,exampleRadius)
+                    description = getSmarts(molP,exampleAtom,exampleRadius)
                     info_temp.append((bitId, exampleRadius, description))
                
                 #collect the desired output in another list
