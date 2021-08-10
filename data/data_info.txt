@@ -1,0 +1,2 @@
+This is the reaction dataset with size ~100K used to train unimolecular model in the original paper.
+Please use the command 'tar -xf' to decompress tar.bz2 type compression.
