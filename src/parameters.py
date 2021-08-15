@@ -21,7 +21,7 @@ character_coverage = 1.0
 model_type = 'word'
 
 # Parameters for Transformer & training
-learning_rate = 0.05
+learning_rate = 0.001
 batch_size = 100
 seq_len = 100
 num_heads = 8
