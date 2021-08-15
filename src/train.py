@@ -20,11 +20,8 @@ def setup(resume_training=False, checkpoint_name=None):
     # Load Transformer model & SGD optimizer..
     print("Loading Transformer model & SGD optimizer..., previously Adam")
     model = build_model()
-    #optim = torch.optim.Adam(model.parameters(), lr=learning_rate)
-    optim = torch.optim.SGD(model.parameters(),lr=learning_rate, momentum=0.9, nesterov=True)
-
-    scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(optim, T_0=1200, T_mult=1, eta_min=0.0, last_epoch=-1)
-    #scheduler = torch.optim.lr_scheduler.StepLR(optim, step_size=2, gamma=1.103)
+    optim = torch.optim.Adam(model.parameters(), lr=learning_rate, betas=(0.90, 0.98))
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(optim, T_0=18000, T_mult=1, eta_min=0.0, last_epoch=-1)
     #print(f"\nInintial scheduler:{scheduler.state_dict()} \n")
     #---
 
