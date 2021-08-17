@@ -48,18 +48,11 @@ Additionally, PubChem compound database (111M) is used to recover molecules from
 
    - `data`
      - `sp`
-       - `src_sp.model`
-       - `src_sp.vocab`
-       - `tar_sp.model`
-       - `tar_sp.vocab`
+       - `src_sp.model`, `src_sp.vocab`, `tar_sp.model`, `tar_sp.vocab`
      - `src`
-       - `train.txt`
-       - `valid.txt`
-       - `test.txt`
+       - `train.txt`, `valid.txt`, `test.txt`
      - `trg`
-       - `train.txt`
-       - `valid.txt`
-       - `test.txt`
+       - `train.txt`, `valid.txt`, `test.txt`
      - `raw_data.src`
      - `raw_data.trg`
 
