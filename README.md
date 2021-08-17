@@ -1,5 +1,5 @@
 ## RetroTRAE: RETROSYNTHETIC TRANSLATION OF ATOMIC ENVIRONMENTS WITH TRANSFORMER
-We present the new retrosynthesis prediction method RetroTRAE using fragment-based tokenization combined with the Transformer architecture. RetroTRAE  represents  chemical  reactions by using the changes of fragment sets of molecules using the atomic environment fragmentation  scheme. Atom  environments stand as an ideal, chemically meaningful building blocks together producing a high resolution molecular representation. Describing a molecule with a set of atom  environments establishes a clear relationship between translated product-reactant pairs due to con-servation of atoms in reactions. 
+We present the new retrosynthesis prediction method RetroTRAE using fragment-based tokenization combined with the Transformer architecture. RetroTRAE  represents  chemical  reactions by using the changes of fragment sets of molecules using the atomic environment fragmentation  scheme. Atom  environments stand as an ideal, chemically meaningful building blocks together producing a high resolution molecular representation. Describing a molecule with a set of atom  environments establishes a clear relationship between translated product-reactant pairs due to conservation of atoms in reactions. 
 
 <br/>
 <hr style="background: transparent; border: 0.5px dashed;"/>
