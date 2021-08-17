@@ -106,5 +106,5 @@ The below results are based on either filtered MIT-full or MIT-fully atom mapped
 | Wang et al., RetroPrime, 2021      | 44.1                   |
 | Tetko et al., AT, 2020      |  46.2                  |
 | Lin et al., 2020      |      54.1              |
-| RetroTRAE -- this work      |     53.4               |
-| RetroTRAE + Bioactive -- this work      | 67.1                   |
+| RetroTRAE -- this work      |     55.4               |
+| RetroTRAE + Bioactive -- this work      | 68.1                   |
