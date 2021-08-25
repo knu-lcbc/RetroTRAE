@@ -111,7 +111,7 @@ def train(resume=False, custom_validation=False, checkpoint_name=None):
             valid_loss, valid_time = validation(model, criterion, valid_loader)
             if custom_validaton:
                 print('Custom validation is running...')
-                predict(model, valid_loader, method='greedy')
+                custom_validation_fn(model, valid_loader, method='greedy')
 
             if not os.path.exists(ckpt_dir):
                 os.mkdir(ckpt_dir)
