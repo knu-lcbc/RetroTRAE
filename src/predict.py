@@ -26,7 +26,7 @@ def setup(model, checkpoint_name):
 
     return model
 
-def predict(model, test_loader, method='greedy'):
+def custom_validation_fn(model, test_loader, method='greedy'):
     start_time = datetime.datetime.now()
     scores = list()
 
