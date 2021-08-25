@@ -233,7 +233,7 @@ def beam_search(model, e_output, e_mask, trg_sp):
 if __name__=='__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--input', type=str, required=True, help='An input sequence')
-    parser.add_argument('--decode', type=str, required=True, default='greedy', help="greedy or beam?")
+    parser.add_argument('--decode', type=str, required=False, default='greedy', help="greedy or beam?")
     parser.add_argument('--checkpoint_name', type=str, required=True, default='best_checkpoint.pth', help="checkpoint file")
 
     args = parser.parse_args()
@@ -243,7 +243,7 @@ if __name__=='__main__':
     assert args.decode == 'greedy' or args.decode =='beam', "Please specify correct decoding method, either 'greedy' or 'beam'."
 
     if args.input:
-        inference(model, args.intput_type, args.decode)
+        inference(model, args.intput, args.decode)
     else:
         print("Please enter input sequence.")
 
