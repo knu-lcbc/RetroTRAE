@@ -97,7 +97,9 @@ def custom_validation_fn(model, test_loader, method='greedy'):
 def inference(model, input_sentence, method):
 
     print("Preprocessing input sentence...")
-    tokenized = src_sp.EncodeAsIds(input_sentence)
+    tokens_list, tokens_str = getAtomEnvs(input_sentnce)
+    print(f"Atom Envs: {tokens_str}\n")
+    tokenized = src_sp.EncodeAsIds(tokens_str)
     src_data = torch.LongTensor(pad_or_truncate(tokenized)).unsqueeze(0).to(device) # (1, L)
     e_mask = (src_data != pad_id).unsqueeze(1).to(device) # (1, 1, L)
 
