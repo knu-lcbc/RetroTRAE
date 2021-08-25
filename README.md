@@ -5,10 +5,9 @@ We present the new retrosynthesis prediction method RetroTRAE using fragment-bas
 <hr style="background: transparent; border: 0.5px dashed;"/>
 
 ### Requirements
-* Python (version >= 3.6) 
-* Numpy (version >= 1.16.4) 
-* PyTorch (version >= 1.0.0) 
-* RDKit (version >= 2019)
+* Python (version >= 3.8) 
+* PyTorch (version >= 1.9.0) 
+* RDKit (version >= 2020.03)
 
  Install all required packages.
 
