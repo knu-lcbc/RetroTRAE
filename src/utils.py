@@ -6,6 +6,13 @@ import torch
 import sentencepiece as spm
 import numpy as np
 import heapq
+import warnings
+
+from rdkit import Chem
+from rdkit import DataStructs
+from rdkit.Chem import AllChem
+
+
 
 def build_model():
     print("Loading vocabs...")
@@ -90,6 +97,103 @@ class PriorityQueue():
     def print_objs(self):
         objs = [t[1] for t in self.queue]
         print(objs)
+
+
+#################
+# Preprocessing molecules
+
+def getSmarts(mol,atomID,radius):
+    if radius>0:
+        env = Chem.FindAtomEnvironmentOfRadiusN(mol,radius,atomID)
+        atomsToUse=[]
+        for b in env:
+            atomsToUse.append(mol.GetBondWithIdx(b).GetBeginAtomIdx())
+            atomsToUse.append(mol.GetBondWithIdx(b).GetEndAtomIdx())
+        atomsToUse = list(set(atomsToUse))
+    else:
+        atomsToUse = [atomID]
+        env=None
+    symbols = []
+    for atom in mol.GetAtoms():
+        deg = atom.GetDegree()
+        isInRing = atom.IsInRing()
+        nHs = atom.GetTotalNumHs()
+        symbol = '['+atom.GetSmarts()
+        if nHs:
+            symbol += 'H'
+            if nHs>1:
+                symbol += '%d'%nHs
+        if isInRing:
+            symbol += ';R'
+        else:
+            symbol += ';!R'
+        symbol += ';D%d'%deg
+        symbol += "]"
+        symbols.append(symbol)
+    try:
+        smart = Chem.MolFragmentToSmiles(mol,atomsToUse,bondsToUse=env,atomSymbols=symbols, allBondsExplicit=True, rootedAtAtom=atomID)
+    except (ValueError, RuntimeError) as ve:
+        print('atom to use error or precondition bond error')
+        return
+    return smart
+
+def getAtomEnvs(smiles, radii=[0, 1], radius=1, nbits=1024):
+    """
+    A function to extract atom environments from the molecular SMILES.
+
+    Parameters
+    ----------
+    smiles: str
+        Molecular SMILES
+    radii: list
+        list of radii you would like to obtain atom envs.
+    radius: int
+        radius of MorganFingerprint
+    nbits: int
+        size of bit vector for MorganFingerprint
+
+    Returns
+    -------
+    tuple
+        a list of atom envs and a string type of this list
+    """
+
+    assert max(radii) <= radius, f"the maximum of radii should be equal or lower than radius, but got {max(radius)}"
+
+    molP = Chem.MolFromSmiles(smiles.strip())
+    if molP is None:
+        #warnings.warn(f"There is a semantic error in {smiles}")
+        raise Exception (f"There is a semantic error in {smiles}")
+
+    sanitFail = Chem.SanitizeMol(molP, catchErrors=True)
+    if sanitFail:
+        raise Exception (f"Couldn't sanitize: {smiles}")
+
+    info = {}
+    fp = AllChem.GetMorganFingerprintAsBitVect(molP,radius=radius, nBits=nbits, bitInfo=info)# condition can change
+
+    info_temp = []
+    for bitId,atoms in info.items():
+        exampleAtom,exampleRadius = atoms[0]
+        description = getSmarts(molP,exampleAtom,exampleRadius)
+        info_temp.append((bitId, exampleRadius, description))
+
+    #collect the desired output in another list
+    updateInfoTemp = []
+    for k,j in enumerate(info_temp):
+        if j[1] in radii:                           # condition can change
+            updateInfoTemp.append(j)
+        else:
+            continue
+
+    tokens_str = ''
+    tokens_list = []
+    for k,j in enumerate(updateInfoTemp):
+        tokens_str += str(updateInfoTemp[k][2]) + ' ' #[2]-> selecting SMARTS description
+        tokens_list.append(str(updateInfoTemp[k][2]))  # condition can change
+
+    return tokens_list, tokens_str.strip()
+
 
 #################
 # Data loaders

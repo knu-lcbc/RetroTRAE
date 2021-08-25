@@ -26,7 +26,7 @@ def setup(model, checkpoint_name):
 
     return model
 
-def predict(model, test_loader, method='greedy'):
+def custom_validation_fn(model, test_loader, method='greedy'):
     start_time = datetime.datetime.now()
     scores = list()
 
@@ -96,8 +96,9 @@ def predict(model, test_loader, method='greedy'):
 
 def inference(model, input_sentence, method):
 
-    print("Preprocessing input sentence...")
-    tokenized = src_sp.EncodeAsIds(input_sentence)
+    print("Preprocessing input SMILES...")
+    tokens_list, tokens_str = getAtomEnvs(input_sentence)
+    tokenized = src_sp.EncodeAsIds(token_str)
     src_data = torch.LongTensor(pad_or_truncate(tokenized)).unsqueeze(0).to(device) # (1, L)
     e_mask = (src_data != pad_id).unsqueeze(1).to(device) # (1, 1, L)
 
@@ -227,6 +228,8 @@ def beam_search(model, e_output, e_mask, trg_sp):
         decoded_output = decoded_output[1:]
 
     return trg_sp.decode_ids(decoded_output)
+
+
 
 if __name__=='__main__':
     parser = argparse.ArgumentParser()
