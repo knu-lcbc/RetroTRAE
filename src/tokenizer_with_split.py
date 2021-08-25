@@ -4,7 +4,7 @@ from tqdm import tqdm
 import os
 import sentencepiece as spm
 
-train_frac = 0.95
+train_frac = 0.90
 
 def train_sp(is_src=True):
     template = "--input={} \
