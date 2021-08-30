@@ -1,4 +1,4 @@
-from .parameters import *
+from parameters import *
 from tqdm import tqdm
 
 import os, argparse
