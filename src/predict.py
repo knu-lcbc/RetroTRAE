@@ -30,16 +30,13 @@ def setup(model, checkpoint_name):
 
     return model
 
-<<<<<<< HEAD
 
 def custom_validation_fn(model, test_loader, model_type, method='greedy'):
     src_sp = spm.SentencePieceProcessor()
     trg_sp = spm.SentencePieceProcessor()
     src_sp.Load(f"{SP_DIR}/{model_type}_src_sp.model")
     trg_sp.Load(f"{SP_DIR}/{model_type}_trg_sp.model")
-=======
-def custom_validation_fn(model, test_loader, method='greedy'):
->>>>>>> d23cf5a99c6802cfa8651ea4441a86c1c2c77844
+
     start_time = datetime.datetime.now()
     scores = list()
 
@@ -107,44 +104,7 @@ def custom_validation_fn(model, test_loader, method='greedy'):
 
     print(f"{elapsed_time}")
 
-<<<<<<< HEAD
-=======
-def inference(model, input_sentence, method):
 
-    print("Preprocessing input sentence...")
-    tokens_list, tokens_str = getAtomEnvs(input_sentnce)
-    print(f"Atom Envs: {tokens_str}\n")
-    tokenized = src_sp.EncodeAsIds(tokens_str)
-    src_data = torch.LongTensor(pad_or_truncate(tokenized)).unsqueeze(0).to(device) # (1, L)
-    e_mask = (src_data != pad_id).unsqueeze(1).to(device) # (1, 1, L)
-
-    start_time = datetime.datetime.now()
-
-    print("Encoding input sentence...")
-    src_data = model.src_embedding(src_data)
-    src_data = model.positional_encoder(src_data)
-    e_output = model.encoder(src_data, e_mask) # (1, L, d_model)
-
-    if method == 'greedy':
-        print("Greedy decoding selected.")
-        result = greedy_search(model, e_output, e_mask, trg_sp)
-    elif method == 'beam':
-        print("Beam search selected.")
-        result = beam_search(model, e_output, e_mask, trg_sp)
-
-    end_time = datetime.datetime.now()
-
-    total_inference_time = end_time - start_time
-    seconds = total_inference_time.seconds
-    minutes = seconds // 60
-    seconds = seconds % 60
-
-    print(f"Input: {input_sentence}")
-    print(f"Result: {result}")
-    print(f"Inference finished! || Total inference time: {minutes}mins {seconds}secs")
-
-
->>>>>>> d23cf5a99c6802cfa8651ea4441a86c1c2c77844
 def greedy_search(model, e_output, e_mask, trg_sp):
     last_words = torch.LongTensor([pad_id] * seq_len).to(device) # (L)
     last_words[0] = sos_id # (L)
@@ -321,7 +281,6 @@ def main(args):
 
 if __name__=='__main__':
     parser = argparse.ArgumentParser()
-<<<<<<< HEAD
     parser.add_argument('--smiles', type=str, required=True, help='An input sequence')
     parser.add_argument('--decode', type=str, required=True, default='greedy', help="greedy or beam?")
     parser.add_argument('--uni_checkpoint_name', type=str, default='uni_checkpoint.pth', help="checkpoint file name")
@@ -330,20 +289,3 @@ if __name__=='__main__':
     args = parser.parse_args()
 
     main(args)
-=======
-    parser.add_argument('--input', type=str, required=True, help='An input sequence')
-    parser.add_argument('--decode', type=str, required=False, default='greedy', help="greedy or beam?")
-    parser.add_argument('--checkpoint_name', type=str, required=True, default='best_checkpoint.pth', help="checkpoint file")
-
-    args = parser.parse_args()
-
-    model = setup(build_model(), args.checkpoint_name)
-
-    assert args.decode == 'greedy' or args.decode =='beam', "Please specify correct decoding method, either 'greedy' or 'beam'."
-
-    if args.input:
-        inference(model, args.intput, args.decode)
-    else:
-        print("Please enter input sequence.")
->>>>>>> d23cf5a99c6802cfa8651ea4441a86c1c2c77844
-

@@ -51,8 +51,8 @@ def setup(model_type, resume_training=False, checkpoint_name=None):
 
     return model, optim, scheduler, criterion
 
-def train(args):
 
+def train(args):
     model, optim, scheduler, criterion = setup(args.model_type, resume_training=args.resume, checkpoint_name=args.checkpoint_name)
 
     # Load dataloaders
@@ -62,12 +62,10 @@ def train(args):
 
     best_loss = sys.float_info.max
 
-
     print("Training starts.")
     print("hyperparameters..")
     print(f'\n\tLearning rate:{learning_rate}\n\tBatch_size:{batch_size} \n\tEpochs:{num_epochs} \n\tDropout_rate:{drop_out_rate} \n\tBeamSearch:{beam_size}')
     print(f'\n\tnum_heads:{num_heads}, num_layers:{num_layers}, d_model:{d_model}, d_ff:{d_ff}')
-
 
     for epoch in range(1, num_epochs+1):
         model.train()
@@ -110,7 +108,6 @@ def train(args):
         print(f"#################### Epoch: {epoch} ####################")
         print(f"Train loss: {mean_train_loss} || One epoch training time: {hours}hrs {minutes}mins {seconds}secs")
 
-
         if epoch % 100 == 0 :
             valid_loss, valid_time = validation(model, criterion, valid_loader)
             if custom_validaton:
@@ -141,6 +138,7 @@ def train(args):
             print(f"Valid loss: {valid_loss} || One epoch training time: {valid_time}")
 
     print(f"Training finished!")
+
 
 def validation(model, criterion, valid_loader):
 
@@ -178,6 +176,7 @@ def validation(model, criterion, valid_loader):
     mean_valid_loss = np.mean(valid_losses)
 
     return mean_valid_loss, f"{hours}hrs {minutes}mins {seconds}secs"
+
 
 if __name__=='__main__':
     parser = argparse.ArgumentParser()
