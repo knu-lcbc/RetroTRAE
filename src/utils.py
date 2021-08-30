@@ -100,11 +100,7 @@ class PriorityQueue():
         objs = [t[1] for t in self.queue]
         print(objs)
 
-<<<<<<< HEAD
 
-=======
-        
->>>>>>> d23cf5a99c6802cfa8651ea4441a86c1c2c77844
 #################
 # Preprocessing of input SMILES
 
@@ -143,10 +139,7 @@ def getSmarts(mol,atomID,radius):
         return
     return smart
 
-<<<<<<< HEAD
 
-=======
->>>>>>> d23cf5a99c6802cfa8651ea4441a86c1c2c77844
 def getAtomEnvs(smiles, radii=[0, 1], radius=1, nbits=1024):
     """
     A function to extract atom environments from the molecular SMILES.
@@ -203,16 +196,11 @@ def getAtomEnvs(smiles, radii=[0, 1], radius=1, nbits=1024):
         tokens_list.append(str(updateInfoTemp[k][2]))  # condition can change
 
     return tokens_list, tokens_str.strip()
-<<<<<<< HEAD
 
 
-=======
-             
-      
->>>>>>> d23cf5a99c6802cfa8651ea4441a86c1c2c77844
+
 #################
 # Data loaders
-
 
 def get_data_loader(model_type, file_name):
     src_sp = spm.SentencePieceProcessor()
@@ -326,7 +314,7 @@ def timing(f):
         hours = seconds // 3600
         minutes = (seconds % 3600) // 60
         seconds = seconds % 60
-        
+
         print(f'{f.__name__} -> Elapsed time: {hours}hrs {minutes}mins {seconds:.3}secs')
 
         return ret
