@@ -83,7 +83,7 @@ Additionally, PubChem compound database (111M) is used to recover molecules from
    - `--smiles`: This is an input molecule (SMILES) you want to synthesis.
    - `--decode`: This makes the decoding algorithm into either greedy method or beam search. Make this parameter `'greedy'` or `'beam'`.  (default: `greedy`)
    - `--uni_checkpoint_name`: This specify the checkpoint file name for unimolecular rxn model. (default: `uni_checkpoint.pth`)
-   - `--bii_checkpoint_name`: This specify the checkpoint file name for biimolecular rxn model. (default: `bi_checkpoint.pth`)
+   - `--bi_checkpoint_name`: This specify the checkpoint file name for biimolecular rxn model. (default: `bi_checkpoint.pth`)
 
    <br/>
    
