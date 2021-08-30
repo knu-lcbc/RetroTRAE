@@ -1,0 +1,7 @@
+data/*
+!data/raw_data.tar.bz2
+saved_models/
+*.png
+*.swp
+__pycache__/
+*.ipynb_checkpoints/

@@ -5,8 +5,10 @@ from transformer import *
 import torch
 import sentencepiece as spm
 import numpy as np
+import pandas as pd
 import heapq
 import warnings
+from pathlib import Path
 
 from rdkit import Chem
 from rdkit import DataStructs
@@ -14,28 +16,28 @@ from rdkit.Chem import AllChem
 
 
 
-def build_model():
-    print("Loading vocabs...")
+def build_model(model_type):
+    print(f"{model_type} molecular model is building...")
+    #print("Loading vocabs...")
     src_i2w = {}
     trg_i2w = {}
 
-    with open(f"{SP_DIR}/{src_model_prefix}.vocab", encoding="utf-8") as f:
+    with open(f"{SP_DIR}/{model_type}_src_sp.vocab", encoding="utf-8") as f:
         lines = f.readlines()
     for i, line in enumerate(lines):
         word = line.strip().split('\t')[0]
         src_i2w[i] = word
 
-    with open(f"{SP_DIR}/{trg_model_prefix}.vocab", encoding="utf-8") as f:
+    with open(f"{SP_DIR}/{model_type}_trg_sp.vocab", encoding="utf-8") as f:
         lines = f.readlines()
     for i, line in enumerate(lines):
         word = line.strip().split('\t')[0]
         trg_i2w[i] = word
 
-    print(f"The size of src vocab is {len(src_i2w)} and that of trg vocab is {len(trg_i2w)}.")
+    #print(f"The size of src vocab is {len(src_i2w)} and that of trg vocab is {len(trg_i2w)}.")
 
-    model = Transformer(src_vocab_size=len(src_i2w), trg_vocab_size=len(trg_i2w)).to(device)
+    return Transformer(src_vocab_size=len(src_i2w), trg_vocab_size=len(trg_i2w)).to(device)
 
-    return model
 
 def make_mask(src_input, trg_input):
     e_mask = (src_input != pad_id).unsqueeze(1)  # (B, 1, L)
@@ -100,7 +102,7 @@ class PriorityQueue():
 
 
 #################
-# Preprocessing molecules
+# Preprocessing of input SMILES
 
 def getSmarts(mol,atomID,radius):
     if radius>0:
@@ -136,6 +138,7 @@ def getSmarts(mol,atomID,radius):
         print('atom to use error or precondition bond error')
         return
     return smart
+
 
 def getAtomEnvs(smiles, radii=[0, 1], radius=1, nbits=1024):
     """
@@ -197,26 +200,27 @@ def getAtomEnvs(smiles, radii=[0, 1], radius=1, nbits=1024):
 
 #################
 # Data loaders
-src_sp = spm.SentencePieceProcessor()
-trg_sp = spm.SentencePieceProcessor()
-src_sp.Load(f"{SP_DIR}/{src_model_prefix}.model")
-trg_sp.Load(f"{SP_DIR}/{trg_model_prefix}.model")
 
 
-def get_data_loader(file_name):
-    print(f"Getting source/target {file_name}...")
-    with open(f"{DATA_DIR}/{SRC_DIR}/{file_name}", 'r', encoding="utf-8") as f:
+def get_data_loader(model_type, file_name):
+    src_sp = spm.SentencePieceProcessor()
+    trg_sp = spm.SentencePieceProcessor()
+    src_sp.Load(f"{SP_DIR}/{model_type}_src_sp.model")
+    trg_sp.Load(f"{SP_DIR}/{model_type}_trg_sp.model")
+
+    print(f"Getting source/target {file_name} for {model_type} molecular...")
+    with open(f"{DATA_DIR}/{SRC_DIR}/{model_type}_{file_name}", 'r', encoding="utf-8") as f:
         src_text_list = f.readlines()
 
-    with open(f"{DATA_DIR}/{TRG_DIR}/{file_name}", 'r', encoding="utf-8") as f:
+    with open(f"{DATA_DIR}/{TRG_DIR}/{model_type}_{file_name}", 'r', encoding="utf-8") as f:
         trg_text_list = f.readlines()
 
     print("Tokenizing & Padding src data...")
-    src_list = process_src(src_text_list) # (sample_num, L)
+    src_list = process_src(src_text_list, src_sp) # (sample_num, L)
     print(f"The shape of src data: {np.shape(src_list)}")
 
     print("Tokenizing & Padding trg data...")
-    input_trg_list, output_trg_list = process_trg(trg_text_list) # (sample_num, L)
+    input_trg_list, output_trg_list = process_trg(trg_text_list, trg_sp) # (sample_num, L)
     print(f"The shape of input trg data: {np.shape(input_trg_list)}")
     print(f"The shape of output trg data: {np.shape(output_trg_list)}")
 
@@ -235,7 +239,7 @@ def pad_or_truncate(tokenized_text):
 
     return tokenized_text
 
-def process_src(text_list):
+def process_src(text_list, src_sp):
     tokenized_list = []
     for text in text_list:
         tokenized = src_sp.EncodeAsIds(text.strip())
@@ -243,7 +247,7 @@ def process_src(text_list):
 
     return tokenized_list
 
-def process_trg(text_list):
+def process_trg(text_list, trg_sp):
     input_tokenized_list = []
     output_tokenized_list = []
     for text in text_list:
@@ -299,6 +303,86 @@ def molGen(input):
 
 def tanimoto(truth, prediction, i, j):
     return len(set(truth[i]) & set(prediction[j])) / float(len(set(truth[i]) | set(prediction[j])))
+
+def timing(f):
+    import time
+    def wrap(*args, **kwargs):
+        time1 = time.time()
+        ret = f(*args, **kwargs)
+        time2 = time.time()
+        seconds = time2 - time1
+        hours = seconds // 3600
+        minutes = (seconds % 3600) // 60
+        seconds = seconds % 60
+        
+        print(f'{f.__name__} -> Elapsed time: {hours}hrs {minutes}mins {seconds:.3}secs')
+
+        return ret
+    return wrap
+
+
+def db_search(query, dbdir, topk):
+    query_set = set(query.strip().split())
+
+    resultq = []
+    for file in Path(dbdir).iterdir():
+        if file.name.endswith('smarts'):
+            with open(file, 'r') as fp:
+                for i, item in enumerate(fp.readlines(), 1):
+                    if i % 1000000 == 0:
+                        print(i)
+                    sequence = item.strip().split('\t')
+                    smiles = sequence[0].strip()
+                    aes_str = sequence[1].strip()
+                    aes_set = set(sequence[1].strip().split())
+                    tanimoto = tc(query_set, aes_set)
+                    if tanimoto >= 0.8:
+                        #result.append((location, query_noform, smile, nbit_noform, tanimoto))
+                        heapq.heappush(resultq, (-tanimoto, query, aes_str, smiles))
+    c = 0
+    candidates = []
+    while c < topk or c < len(resultq):
+        c += 1
+        try:
+            candidates.append(heapq.heappop(resultq))
+        except:
+            pass
+    return candidates
+
+
+@timing
+def mp_dbSearch(results_dict, dbdir, topk=5):
+    import multiprocessing as mp
+    manager = mp.Manager()
+    q = manager.Queue()
+    pool = mp.Pool(mp.cpu_count()+2)
+
+    jobs = []
+    for k, v in results_dict.items():
+        job = pool.apply_async(db_search, (v, dbdir, topk ))
+        jobs.append((k, job))
+
+    results = []
+    for k, job in jobs:
+        #results.append(job.get())
+        candidates = job.get()
+        for tanimoto, query, aes_str, smiles in candidates:
+            results.append([k, query, aes_str, smiles, -tanimoto])
+
+    #return results
+    return pd.DataFrame(results, columns=['Tree', 'Model_Prediction', "DB_AEs", "DB_SMILES", "DB_Tc"])
+
+
+
+def tc(query, nbit):
+    a = len(query)
+    b = len(nbit)
+    c = len(set(query).intersection(nbit))
+    if c != 0:
+        return c / (a + b - c)
+    else:
+        return 0
+
 
 def similarity(truth, prediction):
 # Sdict = Similarity dictiontionary, Nlist = NameList, Vlist = Value list

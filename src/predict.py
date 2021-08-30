@@ -11,14 +11,18 @@ import datetime
 import copy
 import heapq
 
+from rdkit import Chem
+
 import sentencepiece as spm
 import numpy as np
+import pandas as pd
+import multiprocessing as mp
 
 
 def setup(model, checkpoint_name):
     assert os.path.exists(f"{ckpt_dir}/{checkpoint_name}"), f"There is no checkpoint named {checkpoint_name}."
 
-    print("Loading checkpoint...")
+    print("Loading checkpoint...\n")
     checkpoint = torch.load(f"{ckpt_dir}/{checkpoint_name}")
     model.load_state_dict(checkpoint['model_state_dict'])
     #optim.load_state_dict(checkpoint['optim_state_dict'])
@@ -26,7 +30,12 @@ def setup(model, checkpoint_name):
 
     return model
 
-def custom_validation_fn(model, test_loader, method='greedy'):
+
+def custom_validation_fn(model, test_loader, model_type, method='greedy'):
+    src_sp = spm.SentencePieceProcessor()
+    trg_sp = spm.SentencePieceProcessor()
+    src_sp.Load(f"{SP_DIR}/{model_type}_src_sp.model")
+    trg_sp.Load(f"{SP_DIR}/{model_type}_trg_sp.model")
     start_time = datetime.datetime.now()
     scores = list()
 
@@ -93,40 +102,6 @@ def custom_validation_fn(model, test_loader, method='greedy'):
     elapsed_time = f"{hours}hrs {minutes}mins {seconds}secs"
 
     print(f"{elapsed_time}")
-
-def inference(model, input_sentence, method):
-
-    print("Preprocessing input SMILES...")
-    tokens_list, tokens_str = getAtomEnvs(input_sentence)
-    tokenized = src_sp.EncodeAsIds(token_str)
-    src_data = torch.LongTensor(pad_or_truncate(tokenized)).unsqueeze(0).to(device) # (1, L)
-    e_mask = (src_data != pad_id).unsqueeze(1).to(device) # (1, 1, L)
-
-    start_time = datetime.datetime.now()
-
-    print("Encoding input sentence...")
-    src_data = model.src_embedding(src_data)
-    src_data = model.positional_encoder(src_data)
-    e_output = model.encoder(src_data, e_mask) # (1, L, d_model)
-
-    if method == 'greedy':
-        print("Greedy decoding selected.")
-        result = greedy_search(model, e_output, e_mask, trg_sp)
-    elif method == 'beam':
-        print("Beam search selected.")
-        result = beam_search(model, e_output, e_mask, trg_sp)
-
-    end_time = datetime.datetime.now()
-
-    total_inference_time = end_time - start_time
-    seconds = total_inference_time.seconds
-    minutes = seconds // 60
-    seconds = seconds % 60
-
-    print(f"Input: {input_sentence}")
-    print(f"Result: {result}")
-    print(f"Inference finished! || Total inference time: {minutes}mins {seconds}secs")
-
 
 def greedy_search(model, e_output, e_mask, trg_sp):
     last_words = torch.LongTensor([pad_id] * seq_len).to(device) # (L)
@@ -230,21 +205,86 @@ def beam_search(model, e_output, e_mask, trg_sp):
     return trg_sp.decode_ids(decoded_output)
 
 
+def inference(model, input_sentence, model_type,  method):
+    src_sp = spm.SentencePieceProcessor()
+    trg_sp = spm.SentencePieceProcessor()
+    src_sp.Load(f"{SP_DIR}/{model_type}_src_sp.model")
+    trg_sp.Load(f"{SP_DIR}/{model_type}_trg_sp.model")
+
+    tokenized = src_sp.EncodeAsIds(input_sentence)
+    src_data = torch.LongTensor(pad_or_truncate(tokenized)).unsqueeze(0).to(device) # (1, L)
+    e_mask = (src_data != pad_id).unsqueeze(1).to(device) # (1, 1, L)
+
+    start_time = datetime.datetime.now()
+
+    #print("Encoding input sentence...")
+    src_data = model.src_embedding(src_data)
+    src_data = model.positional_encoder(src_data)
+    e_output = model.encoder(src_data, e_mask) # (1, L, d_model)
+
+    if method == 'greedy':
+       # print("Greedy decoding selected.")
+        result = greedy_search(model, e_output, e_mask, trg_sp)
+    elif method == 'beam':
+       # print("Beam search selected.")
+        result = beam_search(model, e_output, e_mask, trg_sp)
+
+    end_time = datetime.datetime.now()
+
+    total_inference_time = end_time - start_time
+    seconds = total_inference_time.seconds
+    minutes = seconds // 60
+    seconds = seconds % 60
+
+    #print(f"Input: {input_sentence}")
+    #print(f"Result: {result}")
+    #print(f"Inference finished! || Total inference time: {minutes}mins {seconds}secs")
+    return result
+
+
+def main(args):
+    uni_model = setup(build_model(model_type='uni'), args.uni_checkpoint_name)
+    bi_model = setup(build_model(model_type='bi'), args.bi_checkpoint_name)
+
+    print(f'{args.decode} decoding searching method selected')
+    print(f"Preprocessing input SMILES...\n{args.smiles}")
+    tokens_list, tokens_str = getAtomEnvs(args.smiles)
+    print(f"Atom Envs: {tokens_str}\n")
+
+    if args.smiles:
+        assert args.decode == 'greedy' or args.decode =='beam', "Please specify correct decoding method, either 'greedy' or 'beam'."
+
+        r = {}
+        r['uni_0'] = inference(uni_model, tokens_str, 'uni', args.decode)
+        r['uni_0biR0_R1'], r['uni_0biR0_R2'] = inference(bi_model, r['uni_0'].strip(), 'bi', args.decode).split('.')
+        r['uni_0biR1_R1'], r['uni_0biR1_R2'] = inference(bi_model, r['uni_0biR0_R1'].strip(),'bi',  args.decode).split('.')
+        r['uni_0biR2_R1'], r['uni_0biR2_R2'] = inference(bi_model, r['uni_0biR0_R2'].strip(), 'bi', args.decode).split('.')
+
+        r['biR0_R1'], r['biR0_R2'] = inference(bi_model, tokens_str, 'bi', args.decode).split('.')
+        r['biR1_R1'], r['biR1_R2'] = inference(bi_model, r['biR0_R1'].strip(), 'bi', args.decode).split('.')
+        r['biR2_R1'], r['biR2_R2'] = inference(bi_model, r['biR0_R2'].strip(), 'bi', args.decode).split('.')
+
+        print("\nDatabase searching...")
+        results_df = mp_dbSearch(r, 'pubchemsmarts')
+        print(f'Saving the results here: ./results_{Chem.MolToInchiKey(Chem.MolFromSmiles(args.smiles))}.csv')
+        results_df.to_csv(f'results_{Chem.MolToInchiKey(Chem.MolFromSmiles(args.smiles))}.csv', index=False)
+        print('Done!')
+
+    else:
+        print("Please enter input SMILES.")
+
+
+
+
 
 if __name__=='__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--input', type=str, required=True, help='An input sequence')
+    parser.add_argument('--smiles', type=str, required=True, help='An input sequence')
     parser.add_argument('--decode', type=str, required=True, default='greedy', help="greedy or beam?")
-    parser.add_argument('--checkpoint_name', type=str, required=True, default='best_checkpoint.pth', help="checkpoint file")
+    parser.add_argument('--uni_checkpoint_name', type=str, default='uni_checkpoint.pth', help="checkpoint file name")
+    parser.add_argument('--bi_checkpoint_name', type=str,  default='bi_checkpoint.pth', help="checkpoint file name")
 
     args = parser.parse_args()
 
-    model = setup(build_model(), args.checkpoint_name)
-
-    assert args.decode == 'greedy' or args.decode =='beam', "Please specify correct decoding method, either 'greedy' or 'beam'."
-
-    if args.input:
-        inference(model, args.intput_type, args.decode)
-    else:
-        print("Please enter input sequence.")
+    main(args)
 

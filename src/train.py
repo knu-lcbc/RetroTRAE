@@ -15,11 +15,15 @@ import heapq
 import sentencepiece as spm
 import numpy as np
 
-def setup(resume_training=False, checkpoint_name=None):
+def setup(model_type, resume_training=False, checkpoint_name=None):
 
     # Load Transformer model & Adam optimizer..
     print("Loading Transformer model & Adam optimizer...")
-    model = build_model()
+    if model_type in ['uni', 'bi']:
+        model = build_model(model_type)
+    else:
+        raise Exception("Please select either 'uni' for unimolecular reactions or 'bi' for bimolecular reactions")
+
     optim = torch.optim.Adam(model.parameters(), lr=learning_rate, betas=(0.90, 0.98))
     scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(optim, T_0=18000, T_mult=1, eta_min=0.0, last_epoch=-1)
     #print(f"\nInintial scheduler:{scheduler.state_dict()} \n")
@@ -47,9 +51,9 @@ def setup(resume_training=False, checkpoint_name=None):
 
     return model, optim, scheduler, criterion
 
-def train(resume=False, custom_validation=False, checkpoint_name=None):
+def train(args):
 
-    model, optim, scheduler, criterion = setup(resume_training=resume, checkpoint_name=checkpoint_name)
+    model, optim, scheduler, criterion = setup(args.model_type, resume_training=args.resume, checkpoint_name=args.checkpoint_name)
 
     # Load dataloaders
     print("Loading dataloaders...")
@@ -120,7 +124,7 @@ def train(resume=False, custom_validation=False, checkpoint_name=None):
                     'optim_state_dict': optim.state_dict(),
                     'loss': valid_loss
                 }
-                torch.save(state_dict, f"{ckpt_dir}/checkpoint_epoch_{epoch}.pth")
+                torch.save(state_dict, f"{ckpt_dir}/{args.model_type}_checkpoint_epoch_{epoch}.pth")
                 print(f"***** Current checkpoint is saved. *****")
 
             if valid_loss < best_loss:
@@ -129,7 +133,7 @@ def train(resume=False, custom_validation=False, checkpoint_name=None):
                     'optim_state_dict': optim.state_dict(),
                     'loss': best_loss
                 }
-                torch.save(state_dict, f"{ckpt_dir}/best_checkpoint.pth")
+                torch.save(state_dict, f"{ckpt_dir}/{args.model_type}_best_checkpoint.pth")
                 print(f"***** Current best checkpoint is saved. *****")
                 best_loss = valid_loss
 
@@ -177,10 +181,11 @@ def validation(model, criterion, valid_loader):
 
 if __name__=='__main__':
     parser = argparse.ArgumentParser()
+    parser.add_argument('--model_type', required=True, type=str, help="'uni' or 'bi'")
     parser.add_argument('--resume', default=False, type=bool, help="Resume: True or Falsee?")
     parser.add_argument('--custom_validation', default=False, type=str, help="Custom validations: True or False")
-    parser.add_argument('--checkpoint_name', default=None, type=str, help="checkpoint file")
+    parser.add_argument('--checkpoint_name', default=None, type=str, help="checkpoint file name")
 
     args = parser.parse_args()
 
-    train(resume=args.resume, custom_validation=args.custom_validation, checkpoint_name=args.checkpoint_name)
+    train(args)
