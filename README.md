@@ -8,6 +8,7 @@ We present the new retrosynthesis prediction method RetroTRAE using fragment-bas
 * Python (version >= 3.8) 
 * PyTorch (version >= 1.9.0) 
 * RDKit (version >= 2020.03)
+* Sentencepiece
 
  Install all required packages.
 
@@ -36,8 +37,10 @@ Additionally, PubChem compound database (111M) is used to recover molecules from
 2. Run `src/tokenizer_with_split.py`.
 
    ```shell
-   python src/tokenizer_with_split.py
+   python src/tokenizer_with_split.py --model_type
    ```
+   - `--model_type`: Select either `'uni'` for unimolecular reactions or `'bi'` for bimolecular reactions
+   
 
    Then there would be `SP_DIR` directory containing two sentencepiece models and two vocab files.
 
@@ -61,8 +64,9 @@ Additionally, PubChem compound database (111M) is used to recover molecules from
  Run below command to train a transformer model for retrosynthetic prediction.
 
    ```shell
-   python src/train.py --resume=False --custom_validation=False --checkpoint_name=CHECKPOINT_NAME
+   python src/train.py --model_type --resume=False --custom_validation=False --checkpoint_name=CHECKPOINT_NAME
    ```
+   - `--model_type`: Select either `'uni'` for unimolecular reactions or `'bi'` for bimolecular reactions
    - `--resume`: Resume training for a given checkpoint. (default: `False`)
    - `--custom_validation`: Evaluates the model accuracy based on the custom metrics. (default: `False`)
    - `--checkpoint_name`: This specify the checkpoint file name. (default: `None`)
@@ -74,11 +78,12 @@ Additionally, PubChem compound database (111M) is used to recover molecules from
  Run below command to conduct an inference with the trained model.
 
    ```shell
-   python src/predict.py  --input=INPUT_TEXT --decode=DECODING_METHOD --checkpoint_name=CHECKPOINT_NAME 
+   python src/predict.py  --smiles --decode --uni_checkpoint_name --bi_checkpoint_name
    ```
-   - `--input`: This is an input sequence you want to translate.
-   - `--decode`: This makes the decoding algorithm into either greedy method or beam search. Make this parameter 'greedy' or 'beam'.  (default: `greedy`)
-   - `--checkpoint_name`: This specify the checkpoint file name. (default: `best_checkpoint.pth`)
+   - `--smiles`: This is an input molecule (SMILES) you want to synthesis.
+   - `--decode`: This makes the decoding algorithm into either greedy method or beam search. Make this parameter `'greedy'` or `'beam'`.  (default: `greedy`)
+   - `--uni_checkpoint_name`: This specify the checkpoint file name for unimolecular rxn model. (default: `uni_checkpoint.pth`)
+   - `--bi_checkpoint_name`: This specify the checkpoint file name for biimolecular rxn model. (default: `bi_checkpoint.pth`)
 
    <br/>
    
