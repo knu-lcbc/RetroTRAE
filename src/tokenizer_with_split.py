@@ -1,5 +1,4 @@
 from parameters import *
-from tqdm import tqdm
 
 import os, argparse
 import sentencepiece as spm
@@ -78,11 +77,11 @@ def split_data(model_type, raw_data_name, data_dir):
         os.mkdir(f"{DATA_DIR}/{data_dir}")
 
     with open(f"{DATA_DIR}/{data_dir}/{model_type}_{TRAIN_NAME}", 'w', encoding="utf-8") as f:
-        for line in tqdm(train_lines):
+        for line in train_lines:
             f.write(line.strip() + '\n')
 
     with open(f"{DATA_DIR}/{data_dir}/{model_type}_{VALID_NAME}", 'w', encoding="utf-8") as f:
-        for line in tqdm(valid_lines):
+        for line in valid_lines:
             f.write(line.strip() + '\n')
 
     print(f"Train/Validation data saved in {DATA_DIR}/{data_dir}.")
