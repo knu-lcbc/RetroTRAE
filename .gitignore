@@ -1,6 +1,7 @@
 data/*
 !data/raw_data.tar.bz2
 saved_models/
+pubchemsmarts/
 *.png
 *.swp
 __pycache__/
