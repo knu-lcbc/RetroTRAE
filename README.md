@@ -37,9 +37,9 @@ Additionally, PubChem compound database (111M) is used to recover molecules from
 2. Run `src/tokenizer_with_split.py`.
 
    ```shell
-   python src/tokenizer_with_split.py --model_type
+   python src/tokenizer_with_split.py --model_type=None
    ```
-   - `--model_type`: Select either `'uni'` for unimolecular reactions or `'bi'` for bimolecular reactions
+   - `--model_type`: By default it runs for both models. It can be specified by selecting either `'uni'` for unimolecular reactions or `'bi'` for bimolecular reactions
    
 
    Then there would be `SP_DIR` directory containing two sentencepiece models and two vocab files.
