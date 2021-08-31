@@ -89,11 +89,23 @@ def split_data(model_type, raw_data_name, data_dir):
 
 if __name__=='__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model_type', type=str, required=True, help='Enter either "uni" or "bi"')
+    parser.add_argument('--model_type', type=str, help='Enter either "uni" or "bi"')
 
     args = parser.parse_args()
-    train_sp(args.model_type, src_vocab_size[args.model_type], is_src=True)
-    train_sp(args.model_type, trg_vocab_size[args.model_type], is_src=False)
-    split_data(args.model_type, SRC_RAW_DATA_NAME, SRC_DIR)
-    split_data(args.model_type, TRG_RAW_DATA_NAME, TRG_DIR)
+    if args.model_type:
+        train_sp(args.model_type, src_vocab_size[args.model_type], is_src=True)
+        train_sp(args.model_type, trg_vocab_size[args.model_type], is_src=False)
+        split_data(args.model_type, SRC_RAW_DATA_NAME, SRC_DIR)
+        split_data(args.model_type, TRG_RAW_DATA_NAME, TRG_DIR)
+
+    else:
+        train_sp('uni', src_vocab_size['uni'], is_src=True)
+        train_sp('uni', trg_vocab_size['uni'], is_src=False)
+        split_data('uni', SRC_RAW_DATA_NAME, SRC_DIR)
+        split_data('uni', TRG_RAW_DATA_NAME, TRG_DIR)
+
+        train_sp('bi', src_vocab_size['bi'], is_src=True)
+        train_sp('bi', trg_vocab_size['bi'], is_src=False)
+        split_data('bi', SRC_RAW_DATA_NAME, SRC_DIR)
+        split_data('bi', TRG_RAW_DATA_NAME, TRG_DIR)
 
