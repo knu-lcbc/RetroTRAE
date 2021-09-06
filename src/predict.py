@@ -9,7 +9,8 @@ import sys, os
 import argparse
 import datetime
 import copy
-import heapq
+import heapq, json
+from pprint import pprint
 
 from rdkit import Chem
 
@@ -220,6 +221,7 @@ def inference(model, input_sentence, model_type,  method):
     start_time = datetime.datetime.now()
 
     #print("Encoding input sentence...")
+    model.eval()
     src_data = model.src_embedding(src_data)
     src_data = model.positional_encoder(src_data)
     e_output = model.encoder(src_data, e_mask) # (1, L, d_model)
@@ -249,7 +251,7 @@ def main(args):
     bi_model = setup(build_model(model_type='bi'), args.bi_checkpoint_name)
 
     print(f'{args.decode} decoding searching method selected')
-    print(f"Preprocessing input SMILES...\n{args.smiles}")
+    print(f"Preprocessing input SMILES: {args.smiles}")
     tokens_list, tokens_str = getAtomEnvs(args.smiles)
     print(f"Atom Envs: {tokens_str}\n")
 
@@ -266,10 +268,21 @@ def main(args):
         r['biR1_R1'], r['biR1_R2'] = inference(bi_model, r['biR0_R1'].strip(), 'bi', args.decode).split('.')
         r['biR2_R1'], r['biR2_R2'] = inference(bi_model, r['biR0_R2'].strip(), 'bi', args.decode).split('.')
 
-        print("\nDatabase searching...")
-        results_df = mp_dbSearch(r, 'pubchemsmarts')
-        print(f'Saving the results here: ./results_{Chem.MolToInchiKey(Chem.MolFromSmiles(args.smiles))}.csv')
-        results_df.to_csv(f'results_{Chem.MolToInchiKey(Chem.MolFromSmiles(args.smiles))}.csv', index=False)
+
+        result_file = f'./results_{Chem.MolToInchiKey(Chem.MolFromSmiles(args.smiles))}'
+        if args.database_dir and os.path.exists(args.database_dir):
+            print("\nDatabase searching...")
+            results_df = mp_dbSearch(r, args.dabase_dir)
+            print(f'Saving the results here: {result_file}.csv')
+            results_df.to_csv(f'{result_file}.csv', index=False)
+        else:
+            print('There is no database available for retrieval.')
+            print("\nModel predicted AEs")
+            #print(r)
+            print()
+            print(f'Saving the results here: {result_file}.json')
+            json.dump(r, open(f'{result_file}.json', 'w'))
+
         print('Done!')
 
     else:
@@ -282,9 +295,10 @@ def main(args):
 if __name__=='__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--smiles', type=str, required=True, help='An input sequence')
-    parser.add_argument('--decode', type=str, required=True, default='greedy', help="greedy or beam?")
+    parser.add_argument('--decode', type=str, default='greedy', help="greedy or beam?")
     parser.add_argument('--uni_checkpoint_name', type=str, default='uni_checkpoint.pth', help="checkpoint file name")
     parser.add_argument('--bi_checkpoint_name', type=str,  default='bi_checkpoint.pth', help="checkpoint file name")
+    parser.add_argument('--database_dir', type=str,  default='PubChem_AEs', help="Database for searching predicted molecules")
 
     args = parser.parse_args()
 
