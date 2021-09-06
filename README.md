@@ -77,7 +77,9 @@ Additionally, PubChem compound database (111M) is used to recover molecules from
 ### Prediction:
  First, download checkpoints ([link here](https://drive.google.com/file/d/1lry-jrunJBWHFnVQmjOsTHSqK_FZtoHU/view?usp=sharing)) and extract the archive file:
  
- ``` tar -xzvf saved_models.tar.gz```
+ ``` shell
+ tar -xzvf saved_models.tar.gz
+ ```
  
  
  Run below command to conduct an inference with the trained model.
