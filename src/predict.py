@@ -272,7 +272,7 @@ def main(args):
         result_file = f'./results_{Chem.MolToInchiKey(Chem.MolFromSmiles(args.smiles))}'
         if args.database_dir and os.path.exists(args.database_dir):
             print("\nDatabase searching...")
-            results_df = mp_dbSearch(r, args.dabase_dir)
+            results_df = mp_dbSearch(r, args.database_dir)
             print(f'Saving the results here: {result_file}.csv')
             results_df.to_csv(f'{result_file}.csv', index=False)
         else:
