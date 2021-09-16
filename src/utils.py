@@ -339,9 +339,11 @@ def db_search(query, dbdir, topk):
                     if tanimoto >= 0.8:
                         #result.append((location, query_noform, smile, nbit_noform, tanimoto))
                         heapq.heappush(resultq, (-tanimoto, query, aes_str, smiles))
-    c = 0
+    c = 1
     candidates = []
-    while c < topk or c < len(resultq):
+    until = topk if len(resultq) > topk else len(resultq)
+
+    while c <= until:
         c += 1
         try:
             candidates.append(heapq.heappop(resultq))
