@@ -1,4 +1,4 @@
-## RetroTRAE: RETROSYNTHETIC TRANSLATION OF ATOMIC ENVIRONMENTS WITH TRANSFORMER
+## RetroTRAE: Retrosynthetic Translation of Atomic Environments with Transformer
 We present a new single-step retrosynthesis prediction method, viz. RetroTRAE, using fragment-based tokenization and the Transformer architecture. RetroTRAE predicts reactant candidates by learning the changes of atom environments (AEs) associated with the chemical reaction. AEs are the ideal stand-alone chemically meaningful building blocks providing a high-resolution molecular representation. Describing a molecule with a set of AEs establishes a clear relationship between translated product-reactant pairs due to the conservation of atoms in the reactions. Our approach introduces a novel scheme for fragmental and topological descriptors to be used as natural inputs for retrosynthetic prediction tasks.
 
 <hr style="background: transparent; border: 0.2px dashed;"/>
@@ -23,36 +23,11 @@ Additionally, [PubChem compound database (_CID-SMILES.gz_)](https://ftp.ncbi.nlm
 ### Code usage
 
 #### Requirements
-The source code is tested on Linux operating systems. We recommend creating a new conda environment. Users should install required packages described in _environments.yml_ prior to direct use.
+The source code is tested on Linux operating systems. After cloning the repository, we recommend creating a new conda environment. Users should install required packages described in _environments.yml_ prior to direct use.
 
    ```shell
    conda env create --name RetroTRAE_env --file=environments.yml
    ```
-
-#### Configurations:
-
-1. Users can set various hyperparameters in `src/parameters.py` file.
-
-2. The following command `src/tokenizer_with_split.py` applies tokenization scheme and also splits the data.
-
-   ```shell
-   python src/tokenizer_with_split.py --model_type='bi'
-   ```
-   - `--model_type`: By default, it runs for bimolecular reaction dataset.
-
-   In default setting, the structure of whole data directory should be like below.
-
-   - `data`
-     - `sp`
-       - `src_sp.model`, `src_sp.vocab`, `tar_sp.model`, `tar_sp.vocab`
-     - `src`
-       - `train.txt`, `valid.txt`, `test.txt`
-     - `trg`
-       - `train.txt`, `valid.txt`, `test.txt`
-     - `raw_data.src`
-     - `raw_data.trg`
-
-<hr style="background: transparent; border: 0.5px dashed;"/>
    
 #### Prediction & Demo:
 
@@ -69,7 +44,31 @@ The source code is tested on Linux operating systems. We recommend creating a ne
    - `--bi_checkpoint_name`: Checkpoint file name for bimolecular rxn model. (default: `bi_checkpoint.pth`)
 
 #### Training:
- Run below command to train a transformer model for retrosynthetic prediction.
+
+#### Configurations:
+
+1. Users can set various hyperparameters in `src/parameters.py` file.
+
+2. The following command `src/tokenizer_with_split.py` applies tokenization scheme and also splits the data.
+
+   ```shell
+   python src/tokenizer_with_split.py --model_type='bi'
+   ```
+   - `--model_type`: By default, it runs for bimolecular reaction dataset. 
+
+The structure of whole data directory should be prefixed by `model_type`.
+
+   - `data`
+     - `sp`
+       - `src_sp.model`, `src_sp.vocab`, `tar_sp.model`, `tar_sp.vocab`
+     - `src`
+       - `train.txt`, `valid.txt`, `test.txt`
+     - `trg`
+       - `train.txt`, `valid.txt`, `test.txt`
+     - `raw_data.src`
+     - `raw_data.trg`
+
+Below command can be used to train the model for retrosynthetic prediction.
 
    ```shell
    python src/train.py --model_type --resume=False --custom_validation=False --checkpoint_name=CHECKPOINT_NAME
