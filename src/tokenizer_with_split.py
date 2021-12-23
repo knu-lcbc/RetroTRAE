@@ -1,4 +1,4 @@
-import argparse 
+import argparse
 import os
 from random import shuffle
 
@@ -68,13 +68,13 @@ def train_sp(model_type, vocab_size, is_src=True):
         spm.SentencePieceTrainer.Train(config)
 
 
-def split_data(model_type, raw_data_name, data_dir, augment=False, num_augment=5):
+def split_data(model_type, raw_data_name, data_dir, augment=True, num_augment=5):
     with open(f"{DATA_DIR}/{model_type}_{raw_data_name}", encoding="utf-8") as f:
         lines = f.readlines()
 
     print("\nSplitting data...")
     if augment:
-        print('*'*5, f'Train set of SRC will be augmented {args.num_augment} times.\n')
+        print('*'*5, f'Train set of SRC will be augmented {num_augment} times.\n')
 
     temp = lines[:int(train_frac * len(lines))]
 
@@ -91,16 +91,15 @@ def split_data(model_type, raw_data_name, data_dir, augment=False, num_augment=5
                 for _ in range(num_augment):
                     line_list = line.strip().split()
                     shuffle(line_list)
-                    shuffled_list = ' '.join(line_list) 
+                    shuffled_list = ' '.join(line_list)
                     f.write(shuffled_list + '\n')
             else:
                 f.write(line.strip() + '\n')
-                
 
     with open(f"{DATA_DIR}/{data_dir}/{model_type}_{VALID_NAME}", 'w', encoding="utf-8") as f:
         for line in valid_lines:
             f.write(line.strip() + '\n')
-    
+
     with open(f"{DATA_DIR}/{data_dir}/{model_type}_{TEST_NAME}", 'w', encoding="utf-8") as f:
         for line in test_lines:
             f.write(line.strip() + '\n')
@@ -110,26 +109,26 @@ def split_data(model_type, raw_data_name, data_dir, augment=False, num_augment=5
 
 if __name__=='__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model_type', type=str, help='Enter either "uni" or "bi"')
-    parser.add_argument('--augment', action='store_true', help='Data augmentation of SRC (Products)')
-    parser.add_argument('--num_augment', type=int, default=5, help='Number of data augmentation of SRC (Products)')
-    
+    parser.add_argument('--model_type', default='bi', type=str, help='Enter either "uni" or "bi" or "both"')
+    #parser.add_argument('--augment', action='store_true', help='Data augmentation of SRC (Products)')
+    #parser.add_argument('--num_augment', type=int, default=5, help='Number of data augmentation of SRC (Products)')
+
 
     args = parser.parse_args()
     if args.model_type:
         train_sp(args.model_type, src_vocab_size[args.model_type], is_src=True)
         train_sp(args.model_type, trg_vocab_size[args.model_type], is_src=False)
-        split_data(args.model_type, SRC_RAW_DATA_NAME, SRC_DIR, args.augment, args.num_augment)
+        split_data(args.model_type, SRC_RAW_DATA_NAME, SRC_DIR, True, 5)
         split_data(args.model_type, TRG_RAW_DATA_NAME, TRG_DIR, False, 0)
 
-    else:
+    elif args.model_type =='both':
         train_sp('uni', src_vocab_size['uni'], is_src=True)
         train_sp('uni', trg_vocab_size['uni'], is_src=False)
-        split_data('uni', SRC_RAW_DATA_NAME, SRC_DIR,  args.augment, args.num_augment)
+        split_data('uni', SRC_RAW_DATA_NAME, SRC_DIR,  True, 5)
         split_data('uni', TRG_RAW_DATA_NAME, TRG_DIR,  False, 0)
 
         train_sp('bi', src_vocab_size['bi'], is_src=True)
         train_sp('bi', trg_vocab_size['bi'], is_src=False)
-        split_data('bi', SRC_RAW_DATA_NAME, SRC_DIR,  args.augment, args.num_augment)
+        split_data('bi', SRC_RAW_DATA_NAME, SRC_DIR,  True, 5)
         split_data('bi', TRG_RAW_DATA_NAME, TRG_DIR,  False, 0)
 
