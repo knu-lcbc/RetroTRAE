@@ -250,10 +250,10 @@ def main(args):
     uni_model = setup(build_model(model_type='uni'), args.uni_checkpoint_name)
     bi_model = setup(build_model(model_type='bi'), args.bi_checkpoint_name)
 
-    print(f'{args.decode} decoding searching method is selected')
+    print(f'{args.decode} decoding searching method is selected.')
     print(f"Preprocessing input SMILES: {args.smiles}")
     tokens_list, tokens_str = getAtomEnvs(args.smiles)
-    print(f"Atom Envs: {tokens_str}\n")
+    print(f"Corresponding AEs: {tokens_str}\n")
 
     if args.smiles:
         assert args.decode == 'greedy' or args.decode =='beam', "Please specify correct decoding method, either 'greedy' or 'beam'."
@@ -269,19 +269,20 @@ def main(args):
         r['biR2_R1'], r['biR2_R2'] = inference(bi_model, r['biR0_R2'].strip(), 'bi', args.decode).split('.')
 
 
-        result_file = f'./results_{Chem.MolToInchiKey(Chem.MolFromSmiles(args.smiles))}'
+        result_file = f'results_{Chem.MolToInchiKey(Chem.MolFromSmiles(args.smiles))}'
+        print("\nPredictions are made in AEs form.")
+        print(f'Saving the results here: {result_file}.json')
+        json.dump(r, open(f'{result_file}.json', 'w'))
+
+        print("\nPreparing for database search...")
         if args.database_dir and os.path.exists(args.database_dir):
-            print("\nDatabase searching...")
+            print("\nStarting DB search...")
             results_df = mp_dbSearch(r, args.database_dir)
             print(f'Saving the results here: {result_file}.csv')
             results_df.to_csv(f'{result_file}.csv', index=False)
         else:
-            print('There is no database available for retrieval.')
-            print("\nModel predicted AEs")
-            #print(r)
+            print('There is no DB available for retrieval!')
             print()
-            print(f'Saving the results here: {result_file}.json')
-            json.dump(r, open(f'{result_file}.json', 'w'))
 
         print('Done!')
 

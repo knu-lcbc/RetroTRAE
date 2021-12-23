@@ -17,7 +17,7 @@ from rdkit.Chem import AllChem
 
 
 def build_model(model_type):
-    print(f"{model_type} molecular model is building...")
+    print(f"{model_type}molecular model is building...")
     #print("Loading vocabs...")
     src_i2w = {}
     trg_i2w = {}
@@ -353,7 +353,7 @@ def db_search(query, dbdir, topk):
 
 
 @timing
-def mp_dbSearch(results_dict, dbdir, topk=5):
+def mp_dbSearch(results_dict, dbdir, topk=3):
     import multiprocessing as mp
     manager = mp.Manager()
     q = manager.Queue()
