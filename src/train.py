@@ -193,10 +193,13 @@ if __name__=='__main__':
     parser.add_argument('--model_type', default='bi', type=str, help="'uni' or 'bi'")
     parser.add_argument('--resume', action='store_true', help="Resume training")
     parser.add_argument('--start_epoch', default=0, type=int, help="Starting epoch when resuming training")
-    parser.add_argument('--custom_validation', action='store_true', help="Custom validations")
+    parser.add_argument('--custom_validation', action='store_false', help="Custom validations")
     parser.add_argument('--checkpoint_name', default=None, type=str, help="checkpoint file name")
 
     args = parser.parse_args()
+
+    print('******Configurations******')
+    print(f'{args.model_type = } \n{args.custom_validation = } \n{args.start_epoch = }\n{args.resume = } \n{args.checkpoint_name = }\n')
 
     if not os.path.exists(ckpt_dir):
         os.mkdir(ckpt_dir)
