@@ -28,31 +28,6 @@ The source code is tested on Linux operating systems. We recommend creating a ne
    ```shell
    conda env create --name RetroTRAE_env --file=environments.yml
    ```
-
-#### Configurations:
-
-1. Users can set various hyperparameters in `src/parameters.py` file.
-
-2. The following command `src/tokenizer_with_split.py` applies tokenization scheme and also splits the data.
-
-   ```shell
-   python src/tokenizer_with_split.py --model_type='bi'
-   ```
-   - `--model_type`: By default, it runs for bimolecular reaction dataset.
-
-   In default setting, the structure of whole data directory should be like below.
-
-   - `data`
-     - `sp`
-       - `src_sp.model`, `src_sp.vocab`, `tar_sp.model`, `tar_sp.vocab`
-     - `src`
-       - `train.txt`, `valid.txt`, `test.txt`
-     - `trg`
-       - `train.txt`, `valid.txt`, `test.txt`
-     - `raw_data.src`
-     - `raw_data.trg`
-
-<hr style="background: transparent; border: 0.5px dashed;"/>
    
 #### Prediction & Demo:
 
@@ -69,6 +44,30 @@ The source code is tested on Linux operating systems. We recommend creating a ne
    - `--bi_checkpoint_name`: Checkpoint file name for bimolecular rxn model. (default: `bi_checkpoint.pth`)
 
 #### Training:
+
+#### Configurations:
+
+1. Users can set various hyperparameters in `src/parameters.py` file.
+
+2. The following command `src/tokenizer_with_split.py` applies tokenization scheme and also splits the data.
+
+   ```shell
+   python src/tokenizer_with_split.py --model_type='bi'
+   ```
+   - `--model_type`: By default, it runs for bimolecular reaction dataset.
+
+   In default setting, the structure of whole data directory should be prefixed by `model_type`.
+
+   - `data`
+     - `sp`
+       - `src_sp.model`, `src_sp.vocab`, `tar_sp.model`, `tar_sp.vocab`
+     - `src`
+       - `train.txt`, `valid.txt`, `test.txt`
+     - `trg`
+       - `train.txt`, `valid.txt`, `test.txt`
+     - `raw_data.src`
+     - `raw_data.trg`
+
  Run below command to train a transformer model for retrosynthetic prediction.
 
    ```shell
