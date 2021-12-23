@@ -2,6 +2,7 @@ from parameters import *
 from utils import *
 from transformer import *
 from predict import *
+from lr_scheduler import *
 
 from torch import nn
 import torch
@@ -24,10 +25,12 @@ def setup(model_type, resume_training=False, checkpoint_name=None):
     else:
         raise Exception("Please select either 'uni' for unimolecular reactions or 'bi' for bimolecular reactions")
 
-    optim = torch.optim.Adam(model.parameters(), lr=learning_rate, betas=(0.90, 0.98))
-    scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(optim, T_0=18000, T_mult=1, eta_min=0.0, last_epoch=-1)
+    #optim = torch.optim.Adam(model.parameters(), lr=learning_rate, betas=(0.90, 0.98))
+    #scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(optim, T_0=18000, T_mult=1, eta_min=0.0, last_epoch=-1)
     #print(f"\nInintial scheduler:{scheduler.state_dict()} \n")
     #---
+    optim = CustomOptim(30, 15000,
+                        torch.optim.Adam(model.parameters(), lr=0, betas=(0.90, 0.98)))
 
     if resume_training:
         assert os.path.exists(f"{ckpt_dir}/{checkpoint_name}"), f"There is no checkpoint named {checkpoint_name}."
@@ -49,16 +52,18 @@ def setup(model_type, resume_training=False, checkpoint_name=None):
 
     print("Setting finished.")
 
-    return model, optim, scheduler, criterion
+    #return model, optim, scheduler, criterion
+    return model, optim, criterion
 
 
 def train(args):
-    model, optim, scheduler, criterion = setup(args.model_type, resume_training=args.resume, checkpoint_name=args.checkpoint_name)
+    #model, optim, scheduler, criterion = setup(args.model_type, resume_training=args.resume, checkpoint_name=args.checkpoint_name)
+    model, optim, criterion = setup(args.model_type, resume_training=args.resume, checkpoint_name=args.checkpoint_name)
 
     # Load dataloaders
     print("Loading dataloaders...")
-    train_loader = get_data_loader(TRAIN_NAME)
-    valid_loader = get_data_loader(VALID_NAME)
+    train_loader = get_data_loader(args.model_type, TRAIN_NAME)
+    valid_loader = get_data_loader(args.model_type, VALID_NAME)
 
     best_loss = sys.float_info.max
 
@@ -67,7 +72,7 @@ def train(args):
     print(f'\n\tLearning rate:{learning_rate}\n\tBatch_size:{batch_size} \n\tEpochs:{num_epochs} \n\tDropout_rate:{drop_out_rate} \n\tBeamSearch:{beam_size}')
     print(f'\n\tnum_heads:{num_heads}, num_layers:{num_layers}, d_model:{d_model}, d_ff:{d_ff}')
 
-    for epoch in range(1, num_epochs+1):
+    for epoch in range(args.start_epoch, num_epochs):
         model.train()
 
         train_losses = []
@@ -84,13 +89,13 @@ def train(args):
             trg_output_shape = trg_output.shape
             optim.zero_grad()
             loss = criterion(
-                output.view(-1, trg_vocab_size),
+                output.view(-1, trg_vocab_size[args.model_type]),
                 trg_output.view(trg_output_shape[0] * trg_output_shape[1])
             )
 
             loss.backward()
-            optim.step()
-            scheduler.step()
+            optim.step(epoch)
+            #scheduler.step()
 
             train_losses.append(loss.item())
 
@@ -108,21 +113,26 @@ def train(args):
         print(f"#################### Epoch: {epoch} ####################")
         print(f"Train loss: {mean_train_loss} || One epoch training time: {hours}hrs {minutes}mins {seconds}secs")
 
-        if epoch % 100 == 0 :
-            valid_loss, valid_time = validation(model, criterion, valid_loader)
-            if custom_validaton:
+        valid_loss, valid_time = validation(model, criterion, valid_loader)
+        state_dict = {
+            'model_state_dict': model.state_dict(),
+            'optim_state_dict': optim.state_dict(),
+            'loss': valid_loss
+        }
+        torch.save(state_dict, f"{ckpt_dir}/{args.model_type}_checkpoint_epoch_last.pth")
+
+        if ((epoch+1) % 50 == 0 or epoch==1):
+            if args.custom_validaton:
                 print('Custom validation is running...')
                 custom_validation_fn(model, valid_loader, method='greedy')
 
-            if not os.path.exists(ckpt_dir):
-                os.mkdir(ckpt_dir)
-                state_dict = {
-                    'model_state_dict': model.state_dict(),
-                    'optim_state_dict': optim.state_dict(),
-                    'loss': valid_loss
-                }
-                torch.save(state_dict, f"{ckpt_dir}/{args.model_type}_checkpoint_epoch_{epoch}.pth")
-                print(f"***** Current checkpoint is saved. *****")
+            state_dict = {
+                'model_state_dict': model.state_dict(),
+                'optim_state_dict': optim.state_dict(),
+                'loss': valid_loss
+            }
+            torch.save(state_dict, f"{ckpt_dir}/{args.model_type}_checkpoint_epoch_{epoch}.pth")
+            print(f"***** Current checkpoint is saved. *****")
 
             if valid_loss < best_loss:
                 state_dict = {
@@ -134,8 +144,8 @@ def train(args):
                 print(f"***** Current best checkpoint is saved. *****")
                 best_loss = valid_loss
 
-            print(f"Best valid loss: {best_loss}")
-            print(f"Valid loss: {valid_loss} || One epoch training time: {valid_time}")
+        print(f"Best valid loss: {best_loss}")
+        print(f"Valid loss: {valid_loss} || One epoch training time: {valid_time}")
 
     print(f"Training finished!")
 
@@ -158,7 +168,7 @@ def validation(model, criterion, valid_loader):
             output = model(src_input, trg_input, e_mask, d_mask) # (B, L, vocab_size)
             trg_output_shape = trg_output.shape
             loss = criterion(
-                output.view(-1, trg_vocab_size),
+                output.view(-1, trg_vocab_size[args.model_type]),
                 trg_output.view(trg_output_shape[0] * trg_output_shape[1])
             )
             valid_losses.append(loss.item())
@@ -180,11 +190,19 @@ def validation(model, criterion, valid_loader):
 
 if __name__=='__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model_type', required=True, type=str, help="'uni' or 'bi'")
-    parser.add_argument('--resume', default=False, type=bool, help="Resume: True or Falsee?")
-    parser.add_argument('--custom_validation', default=False, type=str, help="Custom validations: True or False")
+    parser.add_argument('--model_type', default='bi', type=str, help="'uni' or 'bi'")
+    parser.add_argument('--resume', action='store_true', help="Resume training")
+    parser.add_argument('--start_epoch', default=0, type=int, help="Starting epoch when resuming training")
+    parser.add_argument('--custom_validation', action='store_true', help="Custom validations")
     parser.add_argument('--checkpoint_name', default=None, type=str, help="checkpoint file name")
 
     args = parser.parse_args()
+    print(args.resume, args.custom_validation, args.checkpoint_name)
+    if args.checkpoint_name:
+        args.resume = True
+    print(args.resume, args.custom_validation)
+
+    if not os.path.exists(ckpt_dir):
+        os.mkdir(ckpt_dir)
 
     train(args)
