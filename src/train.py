@@ -197,10 +197,6 @@ if __name__=='__main__':
     parser.add_argument('--checkpoint_name', default=None, type=str, help="checkpoint file name")
 
     args = parser.parse_args()
-    print(args.resume, args.custom_validation, args.checkpoint_name)
-    if args.checkpoint_name:
-        args.resume = True
-    print(args.resume, args.custom_validation)
 
     if not os.path.exists(ckpt_dir):
         os.mkdir(ckpt_dir)
