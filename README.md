@@ -33,7 +33,7 @@ The source code is tested on Linux operating systems. We recommend creating a ne
 
 1. Users can set various hyperparameters in `src/parameters.py` file.
 
-2. Run `src/tokenizer_with_split.py`.
+2. The following command `src/tokenizer_with_split.py` applies tokenization scheme and also splits the data.
 
    ```shell
    python src/tokenizer_with_split.py --model_type='bi'
