@@ -16,7 +16,7 @@ There was no reaction class information available in this dataset and we have no
 
 #### Post-processing
 
-Additionally, [PubChem compound database (_CID-SMILES.gz_)](https://ftp.ncbi.nlm.nih.gov/pubchem/Compound/Extras/), 111 million compounds, is used to recover molecules from a list of AEs.
+[PubChem compound database (_CID-SMILES.gz_)](https://ftp.ncbi.nlm.nih.gov/pubchem/Compound/Extras/), 111 million compounds, is used to recover molecules from a list of AEs.
 
 <hr style="background: transparent; border: 0.5px dashed;"/>
 
@@ -31,7 +31,7 @@ The source code is tested on Linux operating systems. After cloning the reposito
    
 #### Prediction & Demo:
 
- First, download [checkpoints files](https://drive.google.com/drive/folders/1lntDBIEt4Yz9Iv1YBez3pke458URhMhZ?usp=sharing) and extract the archive file.
+ First, [checkpoints files](https://drive.google.com/drive/folders/1lntDBIEt4Yz9Iv1YBez3pke458URhMhZ?usp=sharing) should be downloaded and extracted.
   
  Run below commands to conduct an inference with the trained model.
 
@@ -68,26 +68,24 @@ The structure of whole data directory should be prefixed by `model_type`.
      - `raw_data.src`
      - `raw_data.trg`
 
-Below command can be used to train the model for retrosynthetic prediction.
+Below command can be simply used to train the model for retrosynthetic prediction.
 
    ```shell
-   python src/train.py --model_type --resume=False --custom_validation=False --checkpoint_name=CHECKPOINT_NAME
+   python src/train.py 
    ```
-   - `--model_type`: Select either `'uni'` for unimolecular reactions or `'bi'` for bimolecular reactions
-   - `--resume`: Resume training for a given checkpoint. (default: `False`)
+   - `--model_type`: `'uni'` or `'bi'`. (default: `bi`)
    - `--custom_validation`: Evaluates the model accuracy based on the custom metrics. (default: `False`)
-   - `--checkpoint_name`: This specify the checkpoint file name. (default: `None`)
+   - `--resume`: Resume training for a given checkpoint. (default: `False`)
+   - `--start_epoch`: Epoch numbers for resumed training (default: `0`)
+   - `--checkpoint_name`: Checkpoint file name. (default: `None`)
    
-
    
 <hr style="background: transparent; border: 0.5px dashed;"/>
 
    
-#### Accuracy comparison in the paper
+#### Results
 
-**Model performance comparison without additional reaction classes.**
-
-The below results are based on either filtered MIT-full or MIT-fully atom mapped reaction datasets.
+Model performance comparison without additional reaction classes based on either filtered MIT-full or Jin's USPTO.
     
 | Model       | top-1 accuracy (%)                         |
 | -------------------- | ------------------------------------------------------------ |
