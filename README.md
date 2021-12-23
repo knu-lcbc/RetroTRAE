@@ -31,17 +31,46 @@ The source code is tested on Linux operating systems. After cloning the reposito
    
 #### Prediction & Demo:
 
- First, [checkpoints files](https://drive.google.com/drive/folders/1lntDBIEt4Yz9Iv1YBez3pke458URhMhZ?usp=sharing) should be downloaded and extracted.
+First, [checkpoints files](https://drive.google.com/drive/folders/1lntDBIEt4Yz9Iv1YBez3pke458URhMhZ?usp=sharing) should be downloaded and extracted.
   
- Run below commands to conduct an inference with the trained model.
+Run below commands to conduct an inference with the trained model.
 
    ```shell
-   python src/predict.py  --smiles --decode --uni_checkpoint_name --bi_checkpoint_name
+   python src/predict.py  --smiles
    ```
    - `--smiles`: The molecule we wish to synthetize.
    - `--decode`: Decoding algorithm (either `'greedy'` or `'beam'`), (by default: `greedy`)
    - `--uni_checkpoint_name`: Checkpoint file name for unimolecular rxn model. (default: `uni_checkpoint.pth`)
    - `--bi_checkpoint_name`: Checkpoint file name for bimolecular rxn model. (default: `bi_checkpoint.pth`)
+   - `--database_dir`: Path containing DB files.
+
+Example prediction and sample output, results are saving to InChIKey coded filename.
+
+   ```shell
+   >> python src/predict.py --smiles='COc1cc2c(c(Cl)c1OC)CCN(C)CC2c1ccccc1' --database_dir DB_Path
+
+   unimolecular model is building...
+   Loading checkpoint...
+
+   bimolecular model is building...
+   Loading checkpoint...
+
+   greedy decoding searching method is selected.
+   Preprocessing input SMILES: COc1cc2c(c(Cl)c1OC)CCN(C)CC2c1ccccc1
+   Corresponding AEs: [c;R;D3](-[CH;R;D3])(:[c;R;D3]):[cH;R;D2] ... [c;R;D3](-[Cl;!R;D1])(:[c;R;D3]):[c;R;D3] [CH;R;D3]
+
+
+   Predictions are made in AEs form.
+   Saving the results here: results_VDCYGTBDVYWJFQ-UHFFFAOYSA-N.json
+
+   Preparing for database search...
+
+   Starting DB search...
+
+   mp_dbSearch -> Elapsed time: 0.0hrs 29.0mins 4.38secs
+   Saving the results as: results_VDCYGTBDVYWJFQ-UHFFFAOYSA-N.csv
+   Done!
+   ```
 
 #### Training:
 
