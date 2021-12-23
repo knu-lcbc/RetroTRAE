@@ -1,4 +1,4 @@
-## RetroTRAE: Retrosynthetic Translation ofo Atomic Environments with Transformer
+## RetroTRAE: Retrosynthetic Translation of Atomic Environments with Transformer
 We present a new single-step retrosynthesis prediction method, viz. RetroTRAE, using fragment-based tokenization and the Transformer architecture. RetroTRAE predicts reactant candidates by learning the changes of atom environments (AEs) associated with the chemical reaction. AEs are the ideal stand-alone chemically meaningful building blocks providing a high-resolution molecular representation. Describing a molecule with a set of AEs establishes a clear relationship between translated product-reactant pairs due to the conservation of atoms in the reactions. Our approach introduces a novel scheme for fragmental and topological descriptors to be used as natural inputs for retrosynthetic prediction tasks.
 
 <hr style="background: transparent; border: 0.2px dashed;"/>
