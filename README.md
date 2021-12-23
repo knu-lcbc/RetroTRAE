@@ -44,7 +44,9 @@ Run below commands to conduct an inference with the trained model.
    - `--bi_checkpoint_name`: Checkpoint file name for bimolecular rxn model. (default: `bi_checkpoint.pth`)
    - `--database_dir`: Path containing DB files.
 
-Example prediction and sample output, results are saving to InChIKey coded filename.
+Example prediction and sample output;
+
+Results are saving to InChIKey coded filename.
 
    ```shell
    >> python src/predict.py --smiles='COc1cc2c(c(Cl)c1OC)CCN(C)CC2c1ccccc1' --database_dir DB_Path
