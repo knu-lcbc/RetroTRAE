@@ -68,43 +68,55 @@ def train_sp(model_type, vocab_size, is_src=True):
         spm.SentencePieceTrainer.Train(config)
 
 
-def split_data(model_type, raw_data_name, data_dir, augment=True, num_augment=5):
-    with open(f"{DATA_DIR}/{model_type}_{raw_data_name}", encoding="utf-8") as f:
-        lines = f.readlines()
+def split_data(model_type, augment=True, num_augment=5):
+    if augment:
+        print('*'*3, f'\nTrain set of SRC will be augmented {num_augment} times.')
+
+    src_trg = []
+    for src, trg in zip( open(f"{DATA_DIR}/{model_type}_{SRC_RAW_DATA_NAME}", encoding="utf-8"),\
+                   open(f"{DATA_DIR}/{model_type}_{TRG_RAW_DATA_NAME}", encoding="utf-8")):
+        src_trg.append([src.strip(), trg.strip()])
 
     print("\nSplitting data...")
-    if augment:
-        print('*'*5, f'Train set of SRC will be augmented {num_augment} times.\n')
+    temp = src_trg[:int(train_frac * len(src_trg))]
 
-    temp = lines[:int(train_frac * len(lines))]
+    train_lines = src_trg[:int(train_frac * len(temp))]
+    valid_lines = src_trg[int(train_frac * len(temp)):]
+    test_lines =  src_trg[int(train_frac * len(src_trg)):]
 
-    train_lines = lines[:int(train_frac * len(temp))]
-    valid_lines = lines[int(train_frac * len(temp)):]
-    test_lines = lines[int(train_frac * len(lines)):]
+    if not os.path.isdir(f"{DATA_DIR}/{SRC_DIR}"):
+        os.mkdir(f"{DATA_DIR}/{SRC_DIR}")
 
-    if not os.path.isdir(f"{DATA_DIR}/{data_dir}"):
-        os.mkdir(f"{DATA_DIR}/{data_dir}")
+    if not os.path.isdir(f"{DATA_DIR}/{TRG_DIR}"):
+        os.mkdir(f"{DATA_DIR}/{TRG_DIR}")
 
-    with open(f"{DATA_DIR}/{data_dir}/{model_type}_{TRAIN_NAME}", 'w', encoding="utf-8") as f:
-        for line in train_lines:
+    with open(f"{DATA_DIR}/{SRC_DIR}/{model_type}_{TRAIN_NAME}", 'w', encoding="utf-8") as srcf,\
+    open(f"{DATA_DIR}/{TRG_DIR}/{model_type}_{TRAIN_NAME}", 'w', encoding="utf-8") as trgf:
+        for src, trg in train_lines:
             if augment:
                 for _ in range(num_augment):
-                    line_list = line.strip().split()
-                    shuffle(line_list)
-                    shuffled_list = ' '.join(line_list)
-                    f.write(shuffled_list + '\n')
+                    src_list = src.strip().split()
+                    shuffle(src_list)
+                    shuffled_list = ' '.join(src_list)
+                    srcf.write(shuffled_list + '\n')
+                    trgf.write(trg+'\n')
             else:
-                f.write(line.strip() + '\n')
+                srcf.write(src + '\n')
+                trgf.write(trg+'\n')
 
-    with open(f"{DATA_DIR}/{data_dir}/{model_type}_{VALID_NAME}", 'w', encoding="utf-8") as f:
-        for line in valid_lines:
-            f.write(line.strip() + '\n')
+    with open(f"{DATA_DIR}/{SRC_DIR}/{model_type}_{VALID_NAME}", 'w', encoding="utf-8") as srcf,\
+    open(f"{DATA_DIR}/{TRG_DIR}/{model_type}_{VALID_NAME}", 'w', encoding="utf-8") as trgf:
+        for src, trg in valid_lines:
+            srcf.write(src + '\n')
+            trgf.write(trg + '\n')
 
-    with open(f"{DATA_DIR}/{data_dir}/{model_type}_{TEST_NAME}", 'w', encoding="utf-8") as f:
-        for line in test_lines:
-            f.write(line.strip() + '\n')
+    with open(f"{DATA_DIR}/{SRC_DIR}/{model_type}_{TEST_NAME}", 'w', encoding="utf-8") as srcf,\
+    open(f"{DATA_DIR}/{TRG_DIR}/{model_type}_{TEST_NAME}", 'w', encoding="utf-8") as trgf:
+        for src, trg in test_lines:
+            srcf.write(src + '\n')
+            trgf.write(trg + '\n')
 
-    print(f"Train/Valid/test data saved in {DATA_DIR}/{data_dir}.\n")
+    print(f"Train/Valid/test data saved in {DATA_DIR}/{SRC_DIR} and {DATA_DIR}/{TRG_DIR}.\n")
 
 
 if __name__=='__main__':
@@ -113,22 +125,20 @@ if __name__=='__main__':
     #parser.add_argument('--augment', action='store_true', help='Data augmentation of SRC (Products)')
     #parser.add_argument('--num_augment', type=int, default=5, help='Number of data augmentation of SRC (Products)')
 
-
     args = parser.parse_args()
-    if args.model_type:
+    if args.model_type in ['bi', 'uni']:
         train_sp(args.model_type, src_vocab_size[args.model_type], is_src=True)
         train_sp(args.model_type, trg_vocab_size[args.model_type], is_src=False)
-        split_data(args.model_type, SRC_RAW_DATA_NAME, SRC_DIR, True, 5)
-        split_data(args.model_type, TRG_RAW_DATA_NAME, TRG_DIR, False, 0)
+        split_data(args.model_type)
 
-    elif args.model_type =='both':
+    elif args.model_type == 'both':
         train_sp('uni', src_vocab_size['uni'], is_src=True)
         train_sp('uni', trg_vocab_size['uni'], is_src=False)
-        split_data('uni', SRC_RAW_DATA_NAME, SRC_DIR,  True, 5)
-        split_data('uni', TRG_RAW_DATA_NAME, TRG_DIR,  False, 0)
+        split_data('uni')
 
         train_sp('bi', src_vocab_size['bi'], is_src=True)
         train_sp('bi', trg_vocab_size['bi'], is_src=False)
-        split_data('bi', SRC_RAW_DATA_NAME, SRC_DIR,  True, 5)
-        split_data('bi', TRG_RAW_DATA_NAME, TRG_DIR,  False, 0)
+        split_data('bi')
 
+    else:
+        print('Please select one of these option: "uni", "bi" or "both"')
