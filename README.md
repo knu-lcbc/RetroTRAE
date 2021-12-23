@@ -23,7 +23,7 @@ Additionally, [PubChem compound database (_CID-SMILES.gz_)](https://ftp.ncbi.nlm
 ### Code usage
 
 #### Requirements
-The source code is tested on Linux operating systems. We recommend creating a new conda environment. Users should install required packages described in _environments.yml_ prior to direct use.
+The source code is tested on Linux operating systems. After cloning the repository, we recommend creating a new conda environment. Users should install required packages described in _environments.yml_ prior to direct use.
 
    ```shell
    conda env create --name RetroTRAE_env --file=environments.yml
