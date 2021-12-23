@@ -39,10 +39,6 @@ The source code is tested on Linux operating systems. We recommend creating a ne
    python src/tokenizer_with_split.py --model_type='bi'
    ```
    - `--model_type`: By default, it runs for bimolecular reaction dataset.
-   
-   There would be `SP_DIR` directory containing two sentencepiece models and two vocab files.
-
-   Each model and vocab files are for sources and targets and it splits the dataset into training and validation set.
 
    In default setting, the structure of whole data directory should be like below.
 
