@@ -54,9 +54,9 @@ The source code is tested on Linux operating systems. After cloning the reposito
    ```shell
    python src/tokenizer_with_split.py --model_type='bi'
    ```
-   - `--model_type`: By default, it runs for bimolecular reaction dataset.
+   - `--model_type`: By default, it runs for bimolecular reaction dataset. 
 
-   In default setting, the structure of whole data directory should be prefixed by `model_type`.
+The structure of whole data directory should be prefixed by `model_type`.
 
    - `data`
      - `sp`
@@ -68,7 +68,7 @@ The source code is tested on Linux operating systems. After cloning the reposito
      - `raw_data.src`
      - `raw_data.trg`
 
- Run below command to train a transformer model for retrosynthetic prediction.
+Below command can be used to train the model for retrosynthetic prediction.
 
    ```shell
    python src/train.py --model_type --resume=False --custom_validation=False --checkpoint_name=CHECKPOINT_NAME
