@@ -287,7 +287,7 @@ def main(args):
         print('Done!')
 
     else:
-        print("Please enter input SMILES.")
+        print("Please enter input a valid SMILES.")
 
 
 
