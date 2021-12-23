@@ -18,7 +18,7 @@ We present the new retrosynthesis prediction method RetroTRAE using fragment-bas
 
 ## Datasets
 We used a subset of the filtered US patent reaction dataset, USPTO-Full, which is obtained with a text-mining approachi by Lowe.
-This subset contains 480K atom-mapped reactions.
+This subset contains 480K atom-mapped reactions and it can be downloaded from [here](https://github.com/sysu-yanglab/Self-Corrected-Retrosynthetic-Reaction-Predictor/blob/master/data/Jin's_USPTO_dataset.zip).
 For training our models, atom-mapping information was not used. 
 Also, there are no reaction class information is available in this dataset.
 We generated two distinct curated datasets consist of unimolecular and bimolecular reactions, with sizes 100K and 314K respectively. 
