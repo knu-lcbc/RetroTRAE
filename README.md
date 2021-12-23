@@ -36,7 +36,7 @@ The source code is tested on Linux operating systems. We recommend creating a ne
 2. Run `src/tokenizer_with_split.py`.
 
    ```shell
-   python src/tokenizer_with_split.py --model_type=None
+   python src/tokenizer_with_split.py --model_type='bi'
    ```
    - `--model_type`: By default, it runs for bimolecular reaction dataset.
    
