@@ -250,7 +250,7 @@ def main(args):
     uni_model = setup(build_model(model_type='uni'), args.uni_checkpoint_name)
     bi_model = setup(build_model(model_type='bi'), args.bi_checkpoint_name)
 
-    print(f'{args.decode} decoding searching method selected')
+    print(f'{args.decode} decoding searching method is selected')
     print(f"Preprocessing input SMILES: {args.smiles}")
     tokens_list, tokens_str = getAtomEnvs(args.smiles)
     print(f"Atom Envs: {tokens_str}\n")
