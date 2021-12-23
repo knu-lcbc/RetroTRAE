@@ -266,7 +266,7 @@ class CustomDataset(Dataset):
         self.input_trg_data = torch.LongTensor(input_trg_list)
         self.output_trg_data = torch.LongTensor(output_trg_list)
 
-        assert np.shape(src_list) == np.shape(input_trg_list), "The shape of src_list and input_trg_list are different."
+        assert np.shape(src_list) == np.shape(input_trg_list), f"The shape of src_list {np.shape(src_list)} and input_trg_list {np.shape(input_trg_list)} are different."
         assert np.shape(input_trg_list) == np.shape(output_trg_list), "The shape of input_trg_list and output_trg_list are different."
 
     def make_mask(self):
