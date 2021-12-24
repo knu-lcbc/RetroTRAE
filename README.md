@@ -26,7 +26,7 @@ There was no reaction class information available in this dataset and we have no
 The source code is tested on Linux operating systems. After cloning the repository, we recommend creating a new conda environment. Users should install required packages described in _environments.yml_ prior to direct use.
 
    ```shell
-   conda env create --name RetroTRAE_env --file=environments.yml
+   conda env create --name RetroTRAE_env --file=environment.yml
    ```
    
 #### Prediction & Demo:
