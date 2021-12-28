@@ -65,12 +65,6 @@ Results are saving to InChIKey coded filename.
    Predictions are made in AEs form.
    Saving the results here: results_VDCYGTBDVYWJFQ-UHFFFAOYSA-N.json
 
-   Preparing for database search...
-
-   Starting DB search...
-
-   mp_dbSearch -> Elapsed time: 0.0hrs 29.0mins 4.38secs
-   Saving the results as: results_VDCYGTBDVYWJFQ-UHFFFAOYSA-N.csv
    Done!
    ```
 
