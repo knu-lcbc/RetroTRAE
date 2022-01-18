@@ -130,6 +130,8 @@ Model performance comparison without additional reaction classes based on either
 | RetroTRAE     |     58.3               |
 | RetroTRAE (with SM and DM)      | 61.6                   |
 
+<hr style="background: transparent; border: 0.5px dashed;"/>
+
 ### License
 
 Shield: [![CC BY-SA 4.0][cc-by-sa-shield]][cc-by-sa]
