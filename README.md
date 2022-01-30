@@ -101,7 +101,7 @@ Below command can be simply used to train the model for retrosynthetic predictio
    python src/train.py --model_type='bi'
    ```
    - `--model_type`: `'uni'` or `'bi'`. (default: `bi`)
-   - `--custom_validation`: Evaluates the model accuracy based on the custom metrics. (default: `False`)
+   - `--custom_validation`: Evaluates the model accuracy based on the custom metrics. (default: `True`)
    - `--resume`: Resume training for a given checkpoint. (default: `False`)
    - `--start_epoch`: Epoch numbers for resumed training (default: `0`)
    - `--checkpoint_name`: Checkpoint file name. (default: `None`)
