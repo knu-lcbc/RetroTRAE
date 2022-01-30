@@ -98,7 +98,7 @@ The structure of whole data directory should be prefixed by `model_type`.
 Below command can be simply used to train the model for retrosynthetic prediction.
 
    ```shell
-   python src/train.py 
+   python src/train.py --model_type='bi'
    ```
    - `--model_type`: `'uni'` or `'bi'`. (default: `bi`)
    - `--custom_validation`: Evaluates the model accuracy based on the custom metrics. (default: `False`)
