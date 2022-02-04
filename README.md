@@ -1,4 +1,6 @@
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/License-CC_BY--NC_4.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc/4.0/) 
+[![DOI](https://zenodo.org/badge/394543593.svg)](https://zenodo.org/badge/latestdoi/394543593)
+
 
 ## RetroTRAE: Retrosynthetic Translation of Atomic Environments with Transformer
 We present a new single-step retrosynthesis prediction method, viz. RetroTRAE, using fragment-based tokenization and the Transformer architecture. RetroTRAE predicts reactant candidates by learning the changes of atom environments (AEs) associated with the chemical reaction. AEs are the ideal stand-alone chemically meaningful building blocks providing a high-resolution molecular representation. Describing a molecule with a set of AEs establishes a clear relationship between translated product-reactant pairs due to the conservation of atoms in the reactions. Our approach introduces a novel scheme for fragmental and topological descriptors to be used as natural inputs for retrosynthetic prediction tasks.
@@ -98,10 +100,10 @@ The structure of whole data directory should be prefixed by `model_type`.
 Below command can be simply used to train the model for retrosynthetic prediction.
 
    ```shell
-   python src/train.py 
+   python src/train.py --model_type='bi'
    ```
    - `--model_type`: `'uni'` or `'bi'`. (default: `bi`)
-   - `--custom_validation`: Evaluates the model accuracy based on the custom metrics. (default: `False`)
+   - `--custom_validation`: Evaluates the model accuracy based on the custom metrics. (default: `True`)
    - `--resume`: Resume training for a given checkpoint. (default: `False`)
    - `--start_epoch`: Epoch numbers for resumed training (default: `0`)
    - `--checkpoint_name`: Checkpoint file name. (default: `None`)
