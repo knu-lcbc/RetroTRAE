@@ -122,9 +122,9 @@ def train(args):
         torch.save(state_dict, f"{ckpt_dir}/{args.model_type}_checkpoint_epoch_last.pth")
 
         if ((epoch+1) % 50 == 0 or epoch==1):
-            if args.custom_validaton:
+            if args.custom_validation:
                 print('Custom validation is running...')
-                custom_validation_fn(model, valid_loader, method='greedy')
+                custom_validation_fn(model, valid_loader, args.model_type, method='greedy')
 
             state_dict = {
                 'model_state_dict': model.state_dict(),

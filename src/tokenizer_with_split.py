@@ -80,9 +80,10 @@ def split_data(model_type, augment=True, num_augment=5):
     print("\nSplitting data...")
     temp = src_trg[:int(train_frac * len(src_trg))]
 
-    train_lines = src_trg[:int(train_frac * len(temp))]
-    valid_lines = src_trg[int(train_frac * len(temp)):]
+    train_lines = temp[:int(train_frac * len(temp))]
+    valid_lines = temp[int(train_frac * len(temp)):]
     test_lines =  src_trg[int(train_frac * len(src_trg)):]
+    print(f'{len(src_trg) = }\n {len(train_lines) = }\n {len(valid_lines) = }\n {len(test_lines) = }\n')
 
     if not os.path.isdir(f"{DATA_DIR}/{SRC_DIR}"):
         os.mkdir(f"{DATA_DIR}/{SRC_DIR}")
