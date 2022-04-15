@@ -49,7 +49,8 @@ def file_writer(file_path, q):
 def worker(args, cid, smiles, q):
     atomEnv = getAtomEnvs(smiles, radii=[0, 1], radius=1, nbits=1024, rdLogger=args.rdLogger)
     try:
-        q.put(f"{cid}\t{smiles}\t{atomEnv}\n")
+        if atomEnv:
+            q.put(f"{cid}\t{smiles}\t{atomEnv}\n")
     except Exception as e:
         print(cid, e)
 
