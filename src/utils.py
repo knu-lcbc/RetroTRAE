@@ -12,6 +12,7 @@ from pathlib import Path
 
 from rdkit import Chem
 from rdkit import DataStructs
+from rdkit import RDLogger
 from rdkit.Chem import AllChem
 
 
@@ -140,7 +141,7 @@ def getSmarts(mol,atomID,radius):
     return smart
 
 
-def getAtomEnvs(smiles, radii=[0, 1], radius=1, nbits=1024):
+def getAtomEnvs(smiles, radii=[0, 1], radius=1, nbits=1024, rdLogger=False):
     """
     A function to extract atom environments from the molecular SMILES.
 
@@ -163,14 +164,20 @@ def getAtomEnvs(smiles, radii=[0, 1], radius=1, nbits=1024):
 
     assert max(radii) <= radius, f"the maximum of radii should be equal or lower than radius, but got {max(radius)}"
 
+    RDLogger.EnableLog('rdApp.*') if rdLogger else RDLogger.DisableLog('rdApp.*')
     molP = Chem.MolFromSmiles(smiles.strip())
     if molP is None:
-        #warnings.warn(f"There is a semantic error in {smiles}")
-        raise Exception (f"There is a semantic error in {smiles}")
+        if rdLogger:
+            warnings.warn(f"There is a semantic error in {smiles}")
+        #raise Exception (f"There is a semantic error in {smiles}")
+        return None
 
     sanitFail = Chem.SanitizeMol(molP, catchErrors=True)
     if sanitFail:
-        raise Exception (f"Couldn't sanitize: {smiles}")
+        if rdLogger:
+            warnings.warn(f"Couldn't sanitize: {smiles}")
+        #raise Exception (f"Couldn't sanitize: {smiles}")
+        return None
 
     info = {}
     fp = AllChem.GetMorganFingerprintAsBitVect(molP,radius=radius, nBits=nbits, bitInfo=info)# condition can change
@@ -195,7 +202,8 @@ def getAtomEnvs(smiles, radii=[0, 1], radius=1, nbits=1024):
         tokens_str += str(updateInfoTemp[k][2]) + ' ' #[2]-> selecting SMARTS description
         tokens_list.append(str(updateInfoTemp[k][2]))  # condition can change
 
-    return tokens_list, tokens_str.strip()
+    #return tokens_list, tokens_str.strip()
+    return tokens_str.strip()
 
 
 
@@ -332,13 +340,14 @@ def db_search(query, dbdir, topk):
                     if i % 1000000 == 0:
                         print(i)
                     sequence = item.strip().split('\t')
-                    smiles = sequence[0].strip()
-                    aes_str = sequence[1].strip()
-                    aes_set = set(sequence[1].strip().split())
+                    cid = sequence[0].strip()
+                    smiles = sequence[1].strip()
+                    aes_str = sequence[2].strip()
+                    aes_set = set(sequence[2].strip().split())
                     tanimoto = tc(query_set, aes_set)
                     if tanimoto >= 0.8:
                         #result.append((location, query_noform, smile, nbit_noform, tanimoto))
-                        heapq.heappush(resultq, (-tanimoto, query, aes_str, smiles))
+                        heapq.heappush(resultq, (-tanimoto, query, aes_str, smiles, cid))
     c = 1
     candidates = []
     until = topk if len(resultq) > topk else len(resultq)
@@ -368,11 +377,11 @@ def mp_dbSearch(results_dict, dbdir, topk=3):
     for k, job in jobs:
         #results.append(job.get())
         candidates = job.get()
-        for tanimoto, query, aes_str, smiles in candidates:
-            results.append([k, query, aes_str, smiles, -tanimoto])
+        for tanimoto, query, aes_str, smiles, cid in candidates:
+            results.append([k, query, aes_str, smiles,cid, -tanimoto])
 
     #return results
-    return pd.DataFrame(results, columns=['Tree', 'Model_Prediction', "DB_AEs", "DB_SMILES", "DB_Tc"])
+    return pd.DataFrame(results, columns=['Tree', 'Model_Prediction', "DB_AEs", "DB_SMILES","DB_CID", "DB_Tc"])
 
 
 
