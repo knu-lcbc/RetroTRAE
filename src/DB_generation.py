@@ -32,7 +32,6 @@ def worker(args, cid, smiles, q):
     except Exception as e:
         print(cid, e)
 
-
 def split_file(file_path, dest_path, lines_per_file=500, ):
     print("Chunk files will be saved in :", dest_path)
     smallfile = None
@@ -62,7 +61,6 @@ def main(args):
         i = i+1
         if i % 100000==0:
             print('Processing...Line:', i)
-
 
     q.put('kill')
     pool.close()
