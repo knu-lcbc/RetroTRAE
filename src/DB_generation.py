@@ -2,37 +2,15 @@
 from utils import getAtomEnvs
 
 import os
-import numpy as np
-import rdkit
 import time
-import string
 import random
-import matplotlib.pyplot as plt
-import pandas as pd
-
-import itertools
-from collections import Counter
-import pickle
 
 from rdkit import Chem
-from rdkit.Chem import Draw
-
-from rdkit.Chem.Draw import SimilarityMaps
-from IPython.display import SVG
-from rdkit.Chem.Draw import rdMolDraw2D
-import io
-#from PIL import Image
-
-#from rdkit.Chem.Draw import DrawingOptions
 from rdkit import DataStructs
-from rdkit import rdBase
 from rdkit import RDLogger
-from rdkit.Chem import MACCSkeys
-from rdkit.Chem import AllChem
-from rdkit.Chem.AllChem import Compute2DCoords
-from rdkit.Chem.Draw import IPythonConsole
 
 import argparse
+
 
 def file_writer(file_path, q):
     '''Listens for message on the q, write to file. '''
