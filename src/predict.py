@@ -150,15 +150,18 @@ def greedy_search(model, e_output, e_mask, trg_sp):
 
 def beam_search(model, e_output, e_mask, trg_sp):
     cur_queue = PriorityQueue()
-    for k in range(beam_size):
-        cur_queue.put(BeamNode(sos_id, -0.0, [sos_id]))
+    #for k in range(beam_size):
+    cur_queue.put(BeamNode(sos_id, -0.0, [sos_id]))
 
     finished_count = 0
 
     for pos in range(seq_len):
         new_queue = PriorityQueue()
         for k in range(beam_size):
-            node = cur_queue.get()
+            if pos==0 and k>0:
+                continue
+            else:
+                node = cur_queue.get()
             if node.is_finished:
                 new_queue.put(node)
             else:
