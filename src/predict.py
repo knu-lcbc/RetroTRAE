@@ -191,15 +191,15 @@ def beam_search(model, e_output, e_mask, trg_sp):
                 for i, idx in enumerate(last_word_ids):
                     new_node = BeamNode(idx, -(-node.prob + last_word_prob[i]), node.decoded + [idx])
                     if idx == eos_id:
-                        new_node.prob = new_node.prob / float(len(new_node.decoded))
+                        #new_node.prob = new_node.prob / float(len(new_node.decoded))
                         new_node.is_finished = True
                         finished_count += 1
                     new_queue.put(new_node)
 
         cur_queue = copy.deepcopy(new_queue)
 
-        if finished_count == beam_size:
-            break
+        #if finished_count == beam_size:
+        #    break
 
     decoded_output = cur_queue.get().decoded
 
