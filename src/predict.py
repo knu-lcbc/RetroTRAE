@@ -56,25 +56,72 @@ def custom_validation_fn(model, test_loader, model_type, method='greedy'):
                 src_j = model.src_embedding(src_j) # (1, L) => (1, L, d_model)
                 src_j = model.positional_encoder(src_j) # (1, L, d_model)
                 encoder_output = model.encoder(src_j, encoder_mask) # (1, L, d_model)
-                if method == 'greedy':
-                    s_pred = greedy_search(model, encoder_output, encoder_mask, trg_sp)
-                elif method == 'beam':
-                    s_pred = beam_search(model, encoder_output, encoder_mask, trg_sp)
-
                 s_src   = src_sp.decode_ids(src_input[j].tolist())
                 s_truth = trg_sp.decode_ids(trg_output[j].tolist())
+                gtruth = molGen(s_truth)
+                if method == 'greedy':
+                    s_pred = greedy_search(model, encoder_output, encoder_mask, trg_sp)
+                    candidate = molGen(s_pred)
+                    Sdict = similarity(gtruth, candidate)
+                    for item in Sdict.items():
+                        scores.append(item)
+                        print(item)
+                    #print(scores)
+                elif method == 'beam':
+                    scores, s_preds = beam_search(model, encoder_output, encoder_mask, trg_sp)
+                    max_tc = 0
+                    max_e = None
+                    max_item = None
+                    max_pred = None
+                    for s_pred in s_preds:
+                        candidate = molGen(s_pred)
+                        Sdict = similarity(gtruth, candidate)
+                        items = Sdict.items()
+                        if s_truth == s_pred:
+                            for item in items:
+                                scores.append(item)
+                                print(item)
+                            break
+                        if len(items) ==2:
+                            ii, jj = list(items)[0][1], list(items)[1][1]
+                            if ii == 1 and jj ==1:
+                                scores.append(items[0])
+                                scores.append(items[1])
+                                break
+                            elif ii ==1 or jj==1:
+                                if  jj==1:
+                                    if ii > max_e:
+                                        max_e = ii
+                                        max_item = items
+                                        max_pred = s_pred
+                                else:
+                                    if jj > max_e:
+                                        max_e = jj
+                                        max_item = items
+                                        max_pred = s_pred
+                            else:
+                                sim= (ii+jj)/2
+                                if sim> max_tc:
+                                    max_tc = sim
+                                    max_pred = s_pred
+                                    max_item = items
+                        else:
+                            n, sim= items
+                            if sim> max_tc:
+                                max_tc = sim
+                                max_pred = s_pred
+                                max_item = items
+
+                        #print(scores)
+                    s_pred = max_pred
+                    for item in max_item:
+                        scores.append(item)
+
 
                 print( "product : ", s_src)
                 print( "reactants : ", s_truth)
                 print( "predicted : ", s_pred)
 
-                gtruth = molGen(s_truth)
-                candidate = molGen(s_pred)
-                Sdict = similarity(gtruth, candidate)
-                for item in Sdict.items():
-                    scores.append(item)
-                    print(item)
-                #print(scores)
     sum = 0; count = 0; thresh = 0; bad = 0; zeros = 0; seven = 0; five = 0
 
     for i in range(len(scores)):
@@ -148,13 +195,13 @@ def greedy_search(model, e_output, e_mask, trg_sp):
 
     return decoded_output
 
+
 def beam_search(model, e_output, e_mask, trg_sp):
     cur_queue = PriorityQueue()
     #for k in range(beam_size):
     cur_queue.put(BeamNode(sos_id, -0.0, [sos_id]))
 
     finished_count = 0
-
     for pos in range(seq_len):
         new_queue = PriorityQueue()
         for k in range(beam_size):
@@ -201,14 +248,21 @@ def beam_search(model, e_output, e_mask, trg_sp):
         #if finished_count == beam_size:
         #    break
 
-    decoded_output = cur_queue.get().decoded
+    #decoded_output = cur_queue.get().decoded
+    #if decoded_output[-1] == eos_id:
+    #    decoded_output = decoded_output[1:-1]
+    #else:
+    #    decoded_output = decoded_output[1:]
+    #return trg_sp.decode_ids(decoded_output)
+    all_candidates = list()
+    scores  = [ ]
+    for _ in range(beam_size):
+        node = cur_queue.get()
+        decoded_output = node.decoded
+        scores.append(node.prob)
+        all_candidates.append(trg_sp.decode_ids(decoded_output))
 
-    if decoded_output[-1] == eos_id:
-        decoded_output = decoded_output[1:-1]
-    else:
-        decoded_output = decoded_output[1:]
-
-    return trg_sp.decode_ids(decoded_output)
+    return all_candidates, scores
 
 
 def inference(model, input_sentence, model_type,  method):
@@ -298,12 +352,26 @@ def main(args):
 
 if __name__=='__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--smiles', type=str, required=True, help='An input sequence')
-    parser.add_argument('--decode', type=str, default='greedy', help="greedy or beam?")
+    parser.add_argument('--test_mode',  action='store_true', help='Evaluate the model performance on the testset')
+    parser.add_argument('--model_type', default='bi', required='test_mode' in sys.argv, choices=['uni', 'bi'], help="Uni-molecular or Bi-molecular reactions")
+    parser.add_argument('--smiles', type=str, required= '--test_mode' not in sys.argv, help='An input sequence')
+    parser.add_argument('--decode', type=str, default='greedy', choices=['greedy', 'beam'],  help="Decoding method")
+    parser.add_argument('--beam_size', type=int, default=5, help="Beam size (a number of prediction candidates)")
     parser.add_argument('--uni_checkpoint_name', type=str, default='uni_checkpoint.pth', help="checkpoint file name")
     parser.add_argument('--bi_checkpoint_name', type=str,  default='bi_checkpoint.pth', help="checkpoint file name")
     parser.add_argument('--database_dir', type=str,  default='PubChem_AEs', help="Database for searching predicted molecules")
 
     args = parser.parse_args()
 
-    main(args)
+    if args.test_mode:
+        checkpoint_name = args.uni_checkpoint_name if args.model_type =='uni' else args.bi_checkpoint_name
+        model = setup(build_model(model_type=args.model_type), checkpoint_name)
+        print(f"{args=}\n")
+        test_loader = get_data_loader(args.model_type, TEST_NAME)
+        print('Custom validation is running...')
+        custom_validation_fn(model, test_loader, args.model_type, method='greedy')
+
+    else:
+        assert args.smiles is not None, f"Provide input SMILES"
+        main(args)
+
