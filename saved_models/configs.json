@@ -1,0 +1,8 @@
+{"uni-molecular": {
+    "src_sp_prefix": "./data/sp/uni_src_sp", 
+    "trg_sp_prefix": "./data/sp/uni_trg_sp", 
+    "src_seq_len": 100, 
+    "trg_seq_len": 100, 
+    "checkpoint_path": "./saved_models/uni_checkpoint.pth"}, 
+    "bi-molecular": {"src_sp_prefix": "./data/sp/bi_src_sp", "trg_sp_prefix": "./data/sp/bi_trg_sp", "src_seq_len": 100, "trg_seq_len": 100, "checkpoint_path": "./saved_models/bi_checkpoint.pth"},
+    "aes2smiles": {"src_sp_prefix": "./data/sp/all_smarts_sp", "trg_sp_prefix": "./data/sp/all_smiles_sp", "src_seq_len": 65, "trg_seq_len": 130, "checkpoint_path": "./saved_models/AEs_SMARTS_smiles_checkpoint.pth"}}

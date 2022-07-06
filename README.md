@@ -20,7 +20,13 @@ There was no reaction class information available in this dataset and we have no
 
 #### Post-processing
 
-[PubChem compound database (_CID-SMILES.gz_)](https://ftp.ncbi.nlm.nih.gov/pubchem/Compound/Extras/), 111 million compounds, is used to recover molecules from a list of AEs.
+***UPDATED**:
+Now you can generate the PubChem Database for retrieval with the following command after downloading/extracting *CID-SMILES*. 
+[PubChem compound database (_CID-SMILES.gz_)](https://ftp.ncbi.nlm.nih.gov/pubchem/Compound/Extras/CID-SMILES.gz), 111 million compounds, is used to recover molecules from a list of AEs.
+```shell
+    python pubchem_gen.py --cid-smiles-path /path/to/CID-SMILES
+```
+For more details `python pubchem_gen.py --help`
 
 <hr style="background: transparent; border: 0.5px dashed;"/>
 
@@ -30,14 +36,48 @@ There was no reaction class information available in this dataset and we have no
 The source code is tested on Linux operating systems. After cloning the repository, we recommend creating a new conda environment. Users should install required packages described in _environments.yml_ prior to direct use.
 
    ```shell
+   conda create --name RetroTRAE_env python=3.8 -y
+   conda activate RetroTRAE_env
+   conda install pytorch cudatoolkit=11.3 -c pytorch -y
+   conda install -c conda-forge rdkit -y
+   pip install sentencepiece
+   
+   ```
+   or
+
+   ```shell
    conda env create --name RetroTRAE_env --file=environment.yml
    ```
    
 #### Prediction & Demo:
 
 First, [checkpoints files](https://drive.google.com/drive/folders/1lntDBIEt4Yz9Iv1YBez3pke458URhMhZ?usp=sharing) should be downloaded and extracted.
-  
+
 Run below commands to conduct an inference with the trained model.
+ 
+***UPDATED**: This new code will be default in futre. 
+  ```shell
+   python predict.py --smiles='COc1cc2c(c(Cl)c1OC)CCN(C)CC2c1ccccc1' 
+   ```
+   ```shell
+--smiles SMILES       An input sequence (default: None)                                                                                                          
+  --decode {greedy,beam}                                                                                                                                           
+                        Decoding method for RetroTRAE (default: greedy)                                                                                            
+  --beam_size BEAM_SIZE                                                                                                                                            
+                        Beam size (a number of candidates for RetroTRAE) (default: 3)                                                                              
+  --conversion {ml,db}  How to convert AEs to SMILES? 'ml': Machine Learning model 'db': Retrieve from PubChem database (default: ml)                              
+  --database_dir DATABASE_DIR                                                                                                                                      
+                        Database for retrieval of the predicted molecules (default: ./data/PubChem_AEs)                                                            
+  --topk TOPK           A number of candidates for the AEs to SMIES conversion (default: 1)                                                                        
+  --uni_checkpoint_name UNI_CHECKPOINT_NAME                                                                                                                        
+                        Checkpoint file name (default: uni_checkpoint.pth)                                                                                         
+  --bi_checkpoint_name BI_CHECKPOINT_NAME                                                                                                                          
+                        Checkpoint file name (default: bi_checkpoint.pth)                                                                                          
+  --log_file LOG_FILE   A file name for saving outputs (default: None)
+   ```
+   
+ ***Note**: The old code is still there. 
+
 
    ```shell
    python src/predict.py  --smiles
