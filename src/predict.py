@@ -309,7 +309,7 @@ def main(args):
 
     print(f'{args.decode} decoding searching method is selected.')
     print(f"Preprocessing input SMILES: {args.smiles}")
-    tokens_list, tokens_str = getAtomEnvs(args.smiles)
+    tokens_str = getAtomEnvs(args.smiles)
     print(f"Corresponding AEs: {tokens_str}\n")
 
     if args.smiles:
