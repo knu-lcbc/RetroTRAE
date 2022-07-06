@@ -51,7 +51,7 @@ The source code is tested on Linux operating systems. After cloning the reposito
    
 #### Prediction & Demo:
 
-First, [checkpoints files](https://drive.google.com/drive/folders/1lntDBIEt4Yz9Iv1YBez3pke458URhMhZ?usp=sharing) should be downloaded and extracted.
+First, [checkpoints files](https://drive.google.com/file/d/1ZIIFwLzFuJEBTl1Zwq3qBEjOvejN4O5H/view?usp=sharing) should be downloaded and extracted.
 
 Run below commands to conduct an inference with the trained model.
  
