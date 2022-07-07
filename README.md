@@ -55,7 +55,7 @@ First, [checkpoints files](https://drive.google.com/file/d/1ZIIFwLzFuJEBTl1Zwq3q
 
 Run below commands to conduct an inference with the trained model.
  
-***UPDATED**: This new code will be default in futre. 
+***UPDATED**: This new code will be default in future. 
   ```shell
    python predict.py --smiles='COc1cc2c(c(Cl)c1OC)CCN(C)CC2c1ccccc1' 
    ```
