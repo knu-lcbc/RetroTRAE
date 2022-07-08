@@ -34,7 +34,7 @@ def predict(input, retro_model, aes2smiles_model, args, **kwargs):
             smiles_dict[aes]  = [ _.replace(' ', '') for _ in topk_smiles]
         elif args.conversion =='db':
             logger.info("Using database to convert AEs to SMILES")
-            topk_smiles = mp_dbSearch(aes, args.database_dir, args.topk)
+            topk_smiles = mp_dbSearch(aes, args.database_dir, args.topk) # query result: [tanimoto, db_aes, smiles, cid]
             smiles_dict[aes] = topk_smiles
 
     return smiles_dict
