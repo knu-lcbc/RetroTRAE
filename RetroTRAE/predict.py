@@ -40,7 +40,9 @@ def inference(model, input_sentence, method, device,
 
     #logger.info(f"{tokenized=}")
     if len(unknown_tokens)>0:
-        logger.info(f"The following atomic environments found on the given molecule; {unknown_tokens} are outside of the input domain. The predictions will be less reliable.")
+        logger.info(f"The following atomic environments found on the given molecule are outside of the input domain. The predictions will be less reliable.")
+        logger.info('Unknown tokens: {unknown_tokens}')
+
     src_data = torch.LongTensor(pad_or_truncate(tokenized, src_seq_len)).unsqueeze(0).to(device) # (1, L)
     e_mask = (src_data != pad_id).unsqueeze(1).to(device) # (1, 1, L)
 
