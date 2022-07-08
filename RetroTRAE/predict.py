@@ -15,7 +15,7 @@ from .parameters import (
 
 # for inference mode
 
-plogger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 def inference(model, input_sentence, method, device,
               src_sp_prefix,#='data/sp/AEs_SMARTS_vocab_sp',
@@ -29,9 +29,18 @@ def inference(model, input_sentence, method, device,
     src_sp.Load(f"{src_sp_prefix}.model")
     trg_sp.Load(f"{trg_sp_prefix}.model")
 
-    plogger.info(f"Model prediction starts...{src_sp_prefix, trg_sp_prefix}")
-    #print("Preprocessing input sentence...")
-    tokenized = src_sp.EncodeAsIds(input_sentence)
+    #logger.info(f"Model prediction starts...{src_sp_prefix, trg_sp_prefix}")
+    tokenized, unknown_tokens = [], []
+    for token in input_sentence.split():
+        ids = src_sp.encode(token)[0]
+        if ids == 3:
+            unknown_tokens.append(token)
+        else:
+            tokenized.append(ids)
+
+    #logger.info(f"{tokenized=}")
+    if len(unknown_tokens)>0:
+        logger.info(f"The following atomic environments found on the given molecule; {unknown_tokens} are outside of the input domain. The predictions will be less reliable.")
     src_data = torch.LongTensor(pad_or_truncate(tokenized, src_seq_len)).unsqueeze(0).to(device) # (1, L)
     e_mask = (src_data != pad_id).unsqueeze(1).to(device) # (1, 1, L)
 
@@ -42,13 +51,14 @@ def inference(model, input_sentence, method, device,
     e_output = model.encoder(src_data, e_mask) # (1, L, d_model)
 
     if method == 'greedy':
-        plogger.info("Greedy decoding selected.")
+        #logger.info("Greedy decoding selected.")
         result = greedy_search(model, e_output, e_mask, trg_sp, device, trg_seq_len, return_attn=False)
     elif method == 'beam':
-        plogger.info("Beam search selected.")
+        #logger.info("Beam search selected.")
         result = beam_search(model, e_output, e_mask, trg_sp, device, trg_seq_len, beam_size, return_candidates=True, return_attn=False)
 
     return result
+
 
 def greedy_search(model, e_output, e_mask, trg_sp, device, trg_seq_len=130, return_attn=False):
     last_words = torch.LongTensor([pad_id] * trg_seq_len).to(device) # (L)
@@ -94,6 +104,7 @@ def greedy_search(model, e_output, e_mask, trg_sp, device, trg_seq_len=130, retu
         return decoded_output, attn
     else:
         return decoded_output
+
 
 def beam_search(model, e_output, e_mask, trg_sp, device, trg_seq_len, beam_size=3, return_candidates=False, return_attn=False):
     cur_queue = PriorityQueue()

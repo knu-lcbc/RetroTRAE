@@ -23,7 +23,7 @@ def predict(input, retro_model, aes2smiles_model, args, **kwargs):
     # RetroTRAE predictions
     predicted_aes = inference(retro_model, input, method=args.decode, beam_size=args.beam_size, device=args.device, **kwargs)
     logger.info(f"{input=}")
-    logger.info(f"{predicted_aes=}\n")
+    logger.info(f"RetroTRAE output: {predicted_aes}")
 
     # convert AEs to SMILES
     smiles_dict = {}
@@ -43,7 +43,7 @@ def predict(input, retro_model, aes2smiles_model, args, **kwargs):
 if __name__=='__main__':
     parser = argparse.ArgumentParser(description =
                                      """ Single-step retrosynthetic prediction for RetroTRAE.   \
-                                     Referece: https://doi.org/10.1038/s41467-022-28857-w
+                                     See more: https://doi.org/10.1038/s41467-022-28857-w
                                      """, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--model_type', default='bi',  choices=['uni', 'bi'], help="Uni-molecular or Bi-molecular model type")
     parser.add_argument('--smiles', type=str, help='An input sequence')
@@ -75,9 +75,11 @@ if __name__=='__main__':
     input_tokens = utils.getAtomEnvs(args.smiles)
     logger.info(f"Preprocessed input tokens: {input_tokens}\n")
 
+    logger.info(f'{"Uni molecular":*^10}')
     uni_result = predict(input_tokens, uni_model, aes2smiles_model, args, **configs['uni-molecular'])
-    logger.info(f"{uni_result=}")
+    logger.info(f"{uni_result=}\n")
 
+    logger.info(f'{"Bi molecular":*^10}')
     bi_result = predict(input_tokens, bi_model, aes2smiles_model,  args,  **configs['bi-molecular'])
-    logger.info(f"{bi_result=}")
+    logger.info(f"{bi_result=}\n")
     logger.info('Done!')

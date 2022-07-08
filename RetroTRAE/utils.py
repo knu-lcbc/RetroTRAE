@@ -57,7 +57,8 @@ def build_model(src_sp_prefix, trg_sp_prefix, src_seq_len, trg_seq_len, device, 
         word = line.strip().split('\t')[0]
         trg_i2w[i] = word
 
-    logger.info(f"Building model from {src_sp_prefix, trg_sp_prefix}.\tThe size of src vocab is {len(src_i2w)} and that of trg vocab is {len(trg_i2w)}.")
+    logger.info(f"Building model.\tThe size of src vocab is {len(src_i2w)} and that of trg vocab is {len(trg_i2w)}.")
+    #logger.info(f"Building model from {src_sp_prefix, trg_sp_prefix}.\tThe size of src vocab is {len(src_i2w)} and that of trg vocab is {len(trg_i2w)}.")
     model = Transformer(src_vocab_size=len(src_i2w), trg_vocab_size=len(trg_i2w),
                         src_seq_len=src_seq_len,
                         trg_seq_len=trg_seq_len,
