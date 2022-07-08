@@ -46,7 +46,7 @@ def db_search(query, file):
         cid, smiles, aes_str = line.strip().split('\t')
         aes_set = set(aes_str.strip().split())
         tanimoto = tc(query_set, aes_set)
-        if tanimoto >= 0.0:
+        if tanimoto >= 0.6:
             resultq.append( [tanimoto, aes_str, smiles, cid])
     return resultq
 
