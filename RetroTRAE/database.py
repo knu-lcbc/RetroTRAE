@@ -85,8 +85,8 @@ def file_writer(file_path, q):
             f.flush()
 
 def worker(args, cid, smiles, q):
-    atomEnv = getAtomEnvs(smiles, radii=[0, 1], radius=1, nbits=1024, rdLogger=args.rdLogger)
     try:
+        atomEnv = getAtomEnvs(smiles, radii=[0, 1], radius=1, nbits=1024, rdLogger=args.rdLogger)
         if atomEnv:
             #logger.info(atomEnv)
             q.put(f"{cid}\t{smiles}\t{atomEnv}\n")

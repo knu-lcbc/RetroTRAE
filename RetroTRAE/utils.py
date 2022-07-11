@@ -322,7 +322,7 @@ def getSmarts(mol,atomID,radius):
         smart = Chem.MolFragmentToSmiles(mol,atomsToUse,bondsToUse=env,atomSymbols=symbols, allBondsExplicit=True, rootedAtAtom=atomID)
     except (ValueError, RuntimeError) as ve:
         print('atom to use error or precondition bond error')
-        return
+        return None
     return smart
 
 
@@ -371,6 +371,8 @@ def getAtomEnvs(smiles, radii=[0, 1], radius=1, nbits=1024, rdLogger=False):
     for bitId,atoms in info.items():
         exampleAtom,exampleRadius = atoms[0]
         description = getSmarts(molP,exampleAtom,exampleRadius)
+        if description is None:
+            return None
         info_temp.append((bitId, exampleRadius, description))
 
     #collect the desired output in another list
