@@ -21,23 +21,25 @@ logger = logging.getLogger(__file__)
 
 def predict(input, retro_model, aes2smiles_model, args, **kwargs):
     # RetroTRAE predictions
-    predicted_aes = inference(retro_model, input, method=args.decode, beam_size=args.beam_size, device=args.device, **kwargs)
+    list_predicted_aes = inference(retro_model, input, method=args.decode, beam_size=args.beam_size, device=args.device, **kwargs)
     logger.info(f"{input=}")
-    logger.info(f"RetroTRAE output: {predicted_aes}")
+    logger.info(f"RetroTRAE output: {list_predicted_aes}")
 
     # convert AEs to SMILES
-    smiles_dict = {}
-    for aes in predicted_aes.split(' . '):
-        if args.conversion =='ml':
-            logger.info("Using ML model to convert AEs to SMILES")
-            topk_smiles = inference(aes2smiles_model, aes, method='beam', beam_size=args.topk, device=args.device, **configs['aes2smiles'])
-            smiles_dict[aes]  = [ _.replace(' ', '') for _ in topk_smiles]
-        elif args.conversion =='db':
-            logger.info("Using database to convert AEs to SMILES")
-            topk_smiles = mp_dbSearch(aes, args.database_dir, args.topk) # query result: [tanimoto, db_aes, smiles, cid]
-            smiles_dict[aes] = topk_smiles
+    logger.info(f"Using {args.conversion.upper()} model to convert AEs to SMILES")
+    list_candidates = []
+    for i, predicted_aes in enumerate(list_predicted_aes, 1):
+        smiles_dict = {}
+        for aes in predicted_aes.split(' . '):
+            if args.conversion =='ml':
+                topk_smiles = inference(aes2smiles_model, aes, method='beam', beam_size=args.topk, device=args.device, **configs['aes2smiles'])
+                smiles_dict[aes]  = [ _.replace(' ', '') for _ in topk_smiles]
+            elif args.conversion =='db':
+                topk_smiles = mp_dbSearch(aes, args.database_dir, args.topk) # query result: [tanimoto, db_aes, smiles, cid]
+                smiles_dict[aes] = topk_smiles
+        list_candidates.append(smiles_dict)
 
-    return smiles_dict
+    return list_candidates
 
 
 if __name__=='__main__':

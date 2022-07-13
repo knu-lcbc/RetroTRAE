@@ -102,9 +102,9 @@ def greedy_search(model, e_output, e_mask, trg_sp, device, trg_seq_len=130, retu
         decoded_output = last_words[1:].tolist()
     decoded_output = trg_sp.decode_ids(decoded_output)
     if return_attn:
-        return decoded_output, attn
+        return [decoded_output,], attn
     else:
-        return decoded_output
+        return [decoded_output,]
 
 
 def beam_search(model, e_output, e_mask, trg_sp, device, trg_seq_len, beam_size=3, return_candidates=False, return_attn=False):
@@ -165,9 +165,9 @@ def beam_search(model, e_output, e_mask, trg_sp, device, trg_seq_len, beam_size=
     if not return_candidates:
         decoded_output = cur_queue.get().decoded
         if return_attn:
-            return trg_sp.decode_ids(decoded_output), attn
+            return [trg_sp.decode_ids(decoded_output),], attn
         else:
-            return trg_sp.decode_ids(decoded_output)
+            return [trg_sp.decode_ids(decoded_output),]
 
     else:
         all_candidates = list()
@@ -179,7 +179,7 @@ def beam_search(model, e_output, e_mask, trg_sp, device, trg_seq_len, beam_size=
             all_candidates.append(trg_sp.decode_ids(decoded_output))
 
         if return_attn:
-            return [all_candidates, scores], attn
+            return all_candidates, attn
         else:
             return all_candidates
 

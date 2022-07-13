@@ -78,29 +78,32 @@ def file_writer(file_path, q):
         logger.info(f"{file_path} is created.")
         while 1:
             message = q.get()
-            if message=='kill':
+            if message=='Done':
                 logger.info(f"{file_path} \t{ message}")
                 break
             f.write(str(message))
             f.flush()
 
-def worker(args, cid, smiles, q):
+def worker(cid, smiles, q, rdLogger):
     try:
-        atomEnv = getAtomEnvs(smiles, radii=[0, 1], radius=1, nbits=1024, rdLogger=args.rdLogger)
+        atomEnv = getAtomEnvs(smiles, radii=[0, 1], radius=1, nbits=1024, rdLogger=rdLogger)
         if atomEnv:
             #logger.info(atomEnv)
             q.put(f"{cid}\t{smiles}\t{atomEnv}\n")
     except Exception as e:
         logger.debug(f'{cid, e}')
 
-def split_file(file_path, output_path, lines_per_file):
-    logger.info(f"Chunk files will be saved in : {output_path}")
+def split_file(file_path, output_dir, lines_per_file, suffix='smarts'):
+    if not os.path.exists(output_dir):
+        os.mkdir(output_dir)
+        logger.info(f'Created a new directory to save split-files: {output_dir}')
+    logger.info(f"Split-files will be saved in : {output_dir}")
     smallfile = None
     for lineno, line in enumerate(open(file_path)):
         if lineno % lines_per_file == 0:
             if smallfile:
                 smallfile.close()
-            small_filename = '{}/{}.smarts'.format(output_path, lineno + lines_per_file)
+            small_filename = '{}/{}.{}'.format(output_dir, lineno + lines_per_file, suffix)
             logger.info(f"{small_filename }")
             smallfile = open(small_filename, "w")
         smallfile.write(line)
@@ -109,21 +112,19 @@ def split_file(file_path, output_path, lines_per_file):
 
 
 @timeit
-def mp_dbGenerate(args):
+def mp_dbGenerate(args, raw_cid_smiles, file_path):
     import multiprocessing as mp
 
     manager = mp.Manager()
     q = manager.Queue()
     pool = mp.Pool(mp.cpu_count() + 2)
 
-    #args.tmp_file = f"/tmp/CID-SMILES.smarts"
-    watcher = pool.apply_async(file_writer, (args.tmp_file, q))
+    watcher = pool.apply_async(file_writer, (file_path, q))
     jobs = []
-    for i, line in enumerate(open(args.cid_smiles_path)):
+    for i, line in enumerate(open(raw_cid_smiles), 1):
         cid, smiles = line.strip().split('\t')
-        job = pool.apply_async(worker, (args, cid, smiles, q))
+        job = pool.apply_async(worker, (cid, smiles, q, args.rdLogger))
         jobs.append(job)
-        i = i+1
         if args.num_sample:
             args.lines_per_file = args.num_sample//5
             if i >= args.num_sample:
@@ -137,10 +138,10 @@ def mp_dbGenerate(args):
     for job in jobs:
         job.get()
 
-    q.put('kill')
+    q.put('Done')
     pool.close()
     pool.join()
 
-    split_file(args.tmp_file, args.output_dir, args.lines_per_file)
+    #split_file(args.tmp_file, args.output_dir, args.lines_per_file)
     logger.info('Done!')
 
