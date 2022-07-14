@@ -28,6 +28,9 @@ if __name__ =='__main__':
     logger.info(args)
     if not os.path.isdir(args.output_dir):
         os.mkdir(args.output_dir)
+        
+    if not os.path.isdir(args.tmp_dir):
+        os.mkdir(args.tmp_dir)
     #aes = getAtomEnvs('CC(=O)OC(CC(=O)[O-])C[N+](C)(C)C', radii=[0, 1], radius=1, nbits=1024, rdLogger=args.rdLogger)
 
     if args.split_file:
