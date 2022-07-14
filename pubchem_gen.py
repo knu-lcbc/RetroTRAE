@@ -3,7 +3,7 @@ import logging
 import sys, os
 from pathlib import Path
 
-from RetroTRAE.database import mp_dbGenerate
+from RetroTRAE.database import mp_dbGenerate, split_file
 
 logging.basicConfig(level=logging.INFO,
                 format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
