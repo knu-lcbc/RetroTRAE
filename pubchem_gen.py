@@ -52,6 +52,6 @@ if __name__ =='__main__':
                 continue
             target_file = os.path.join(args.output_dir, file.name.replace(args.tmp_file_suffix, 'smarts'))
             mp_dbGenerate(args, file, target_file)
-            if args.num_smaple == None:
+            if args.num_sample == None:
                 with open('job_done', 'a') as f:
                     f.write(f'{file.name}\n')
