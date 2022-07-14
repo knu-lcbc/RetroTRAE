@@ -22,7 +22,7 @@ if __name__ =='__main__':
     parser.add_argument('--rdLogger', action='store_true', default=False, help="Enable RDKit Logger. By default it ignores error messages from the RDKit")
     parser.add_argument('--tmp-dir', default='tmp.data/', type=str, help="An empty directory for temporarily use")
     parser.add_argument('--tmp-file-suffix', default='raw', type=str, help="Suffix for the tmp files in order to track them")
-    parser.add_argument('--split_file', action='store_true', default=False, help="Use when running the code for the first time")
+    parser.add_argument('--split-file', action='store_true', default=False, help="Use when running the code for the first time")
     args = parser.parse_args()
 
     logger.info(args)
