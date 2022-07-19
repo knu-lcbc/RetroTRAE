@@ -156,21 +156,22 @@ Below command can be simply used to train the model for retrosynthetic predictio
 
 Model performance comparison without additional reaction classes based on either filtered MIT-full or Jin's USPTO.
     
-| Model       | top-1 accuracy (%)                         |
-| -------------------- | ------------------------------------------------------------ |
-| `Non-Transformer`       |                    |
-| Coley et al., similarity-based, 2017      | 32.8                   |
-| Segler et al.,--rep. by Lin, Neuralsym, 2020 |  47.8                  |
-| Dai et al., Graph Logic Network, 2019 | 39.3                 |
-| Liu et al.,--rep. by Lin, LSTM-based, 2020 | 46.9                   |
-| Genheden et al., AiZynthfinder, ANN + MCTS, 2020 | 43-72                   |
-| `Transformer-based`       |                    |
-| Zheng et al., SCROP, 2020 | 41.5              |
-| Wang et al., RetroPrime, 2021      | 44.1                   |
-| Tetko et al., Augmented Transformer, 2020     |  46.2                  |
-| Lin et al., AutoSynRoute, Transformer + MCTS, 2020     |      54.1              |
-| RetroTRAE     |     58.3               |
-| RetroTRAE (with SM and DM)      | 61.6                   |
+
+| Model                                               | top-1  | top-3  | top-5  | top-10  |
+| --------------------------------------------------- | ------ | ------ | ------ | ------- |
+| `Non-Transformer`                                   |        |        |        |         |
+| Coley et al., similarity-based, 2017                | 32.8   |        |        |         |
+| Segler et al.,--rep. by Lin, Neuralsym, 2020        | 47.8   | 67.6   | 74.1   | 80.2    |
+| Dai et al., Graph Logic Network, 2019               | 39.3   |        |        |         |
+| Liu et al.,--rep. by Lin, LSTM-based, 2020          | 46.9   | 61.6   | 66.3   | 70.8    |
+| Genheden et al., AiZynthfinder, ANN + MCTS, 2020    | 43-72  |        |        |         |
+| `Transformer-based`                                 |        |        |        |         |
+| Zheng et al., SCROP, 2020                           | 41.5   |        |        |         |
+| Wang et al., RetroPrime, 2021                       | 44.1   |        |        |         |
+| Tetko et al., Augmented Transformer, 2020           | 46.2   |        |        |         |
+| Lin et al., AutoSynRoute, Transformer + MCTS, 2020  | 54.1   | 71.8   | 76.9   | 81.8    |
+| RetroTRAE                                           | 58.3   | 66.1   | 69.4   | 73.1    |
+| RetroTRAE (with SM and DM)                          | 61.6   |        |        |         |
 
 <hr style="background: transparent; border: 0.5px dashed;"/>
 
