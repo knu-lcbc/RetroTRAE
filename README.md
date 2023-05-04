@@ -177,6 +177,22 @@ Model performance comparison without additional reaction classes based on either
 
 <hr style="background: transparent; border: 0.5px dashed;"/>
 
+## Cite
+```
+@article{10.1038/s41467-022-28857-w, 
+year = {2022}, 
+title = {{Retrosynthetic reaction pathway prediction through neural machine translation of atomic environments}}, 
+author = {Ucak, Umit V. and Ashyrmamatov, Islambek and Ko, Junsu and Lee, Juyong}, 
+journal = {Nature Communications}, 
+doi = {10.1038/s41467-022-28857-w}, 
+pmid = {35246540}, 
+pmcid = {PMC8897428}, 
+pages = {1186}, 
+number = {1}, 
+volume = {13}
+}
+```
+
 ### License
 
 [![CC BY-SA 4.0][cc-by-sa-shield]][cc-by-sa]
