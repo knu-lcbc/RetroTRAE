@@ -1,6 +1,6 @@
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/License-CC_BY--NC_4.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc/4.0/) 
 [![DOI](https://zenodo.org/badge/394543593.svg)](https://zenodo.org/badge/latestdoi/394543593)
-[![Nature Communications DOI](https://img.shields.io/badge/Nature_Communications-10.1038%2Fs41467--022--28999--3-red)](https://doi.org/10.1038/s41467-022-28857-w)
+[![Nature Communications DOI](https://img.shields.io/badge/Nature_Communications-10.1038%2Fs41467--022--28857--w-red)](https://doi.org/10.1038/s41467-022-28857-w)
 
 
 ## Retrosynthetic reaction pathway prediction through NMT of atomic environments
