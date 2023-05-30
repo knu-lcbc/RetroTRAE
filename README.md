@@ -4,6 +4,8 @@
 
 
 ## Retrosynthetic reaction pathway prediction through NMT of atomic environments
+> Ucak, U. V., Ashyrmamatov, I., Ko, J. & Lee, J. Retrosynthetic reaction pathway prediction through neural machine translation of atomic environments. Nat Commun 13, 1186 (2022). https://doi.org/10.1038/s41467-022-28857-w
+  
 Designing efficient synthetic routes for a target molecule remains a major challenge in organic synthesis. Atom environments are ideal, stand-alone, chemically meaningful building blocks providing a high-resolution molecular representation. Our approach mimics chemical reasoning, and predicts reactant candidates by learning the changes of atom environments associated with the chemical reaction. Through careful inspection of reactant candidates, we demonstrate atom environments as promising descriptors for studying reaction route prediction and discovery. Here, we present a new single-step retrosynthesis prediction method, viz. RetroTRAE, being free from all SMILES-based translation issues, yields a top-1 accuracy of 58.3% on the USPTO test dataset, and top-1 accuracy reaches to 61.6% with the inclusion of highly similar analogs, outperforming other state-of-the-art neural machine translation-based methods. Our methodology introduces a novel scheme for fragmental and topological descriptors to be used as natural inputs for retrosynthetic prediction tasks.
 
 <hr style="background: transparent; border: 0.2px dashed;"/>
